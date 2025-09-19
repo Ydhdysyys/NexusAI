@@ -1,9 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Target, Lightbulb, Heart } from "lucide-react";
 
 const AboutSection = () => {
+  const { toast } = useToast();
+
+  const handleStartJourney = () => {
+    toast({
+      title: "Vamos começar sua jornada!",
+      description: "Clique em 'Cadastrar' no menu para criar sua conta e começar a usar o NexusAI.",
+      duration: 5000,
+    });
+  };
   return (
     <section id="sobre" className="py-20">
       <div className="container mx-auto px-4">
@@ -20,12 +30,12 @@ const AboutSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
           <div>
             <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 rounded-lg bg-success/10">
+              <div className="flex items-start gap-4 group hover:bg-muted/50 p-4 rounded-lg transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-lg bg-success/10 group-hover:bg-success/20 transition-colors duration-300">
                   <CheckCircle className="h-6 w-6 text-success" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Orientação Baseada em Dados</h3>
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors duration-300">Orientação Baseada em Dados</h3>
                   <p className="text-muted-foreground">
                     Nossa IA analisa milhares de vagas e perfis profissionais para oferecer 
                     conselhos precisos e atualizados com o mercado.
@@ -33,12 +43,12 @@ const AboutSection = () => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="p-2 rounded-lg bg-warning/10">
+              <div className="flex items-start gap-4 group hover:bg-muted/50 p-4 rounded-lg transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-lg bg-warning/10 group-hover:bg-warning/20 transition-colors duration-300">
                   <Target className="h-6 w-6 text-warning" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Foco no Primeiro Emprego</h3>
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors duration-300">Foco no Primeiro Emprego</h3>
                   <p className="text-muted-foreground">
                     Entendemos os desafios únicos de quem está começando e adaptamos 
                     nossas estratégias para superar essas barreiras.
@@ -46,12 +56,12 @@ const AboutSection = () => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="p-2 rounded-lg bg-primary/10">
+              <div className="flex items-start gap-4 group hover:bg-muted/50 p-4 rounded-lg transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
                   <Lightbulb className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Aprendizado Contínuo</h3>
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors duration-300">Aprendizado Contínuo</h3>
                   <p className="text-muted-foreground">
                     Acompanhe as tendências do mercado e desenvolva as habilidades 
                     mais requisitadas pelos empregadores.
@@ -59,12 +69,12 @@ const AboutSection = () => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
-                <div className="p-2 rounded-lg bg-destructive/10">
+              <div className="flex items-start gap-4 group hover:bg-muted/50 p-4 rounded-lg transition-all duration-300 hover:scale-105">
+                <div className="p-2 rounded-lg bg-destructive/10 group-hover:bg-destructive/20 transition-colors duration-300">
                   <Heart className="h-6 w-6 text-destructive" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2">Suporte Humanizado</h3>
+                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors duration-300">Suporte Humanizado</h3>
                   <p className="text-muted-foreground">
                     Tecnologia avançada com toque humano. Nossa IA é treinada para 
                     ser empática e compreender suas necessidades individuais.
@@ -75,30 +85,30 @@ const AboutSection = () => {
           </div>
 
           <div className="space-y-6">
-            <Card className="p-6 bg-gradient-primary text-white border-0">
+            <Card className="p-6 bg-gradient-primary text-white border-0 hover:scale-105 transition-all duration-300 cursor-pointer group">
               <CardContent className="p-0">
-                <div className="text-3xl font-bold mb-2">+10.000</div>
+                <div className="text-3xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300">+10.000</div>
                 <div className="text-white/90 mb-4">Currículos otimizados</div>
                 <div className="flex gap-2">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-0 hover:bg-white/30 transition-colors">
                     IA Avançada
                   </Badge>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-0 hover:bg-white/30 transition-colors">
                     Resultados Comprovados
                   </Badge>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="p-6 bg-gradient-secondary text-white border-0">
+            <Card className="p-6 bg-gradient-secondary text-white border-0 hover:scale-105 transition-all duration-300 cursor-pointer group">
               <CardContent className="p-0">
-                <div className="text-3xl font-bold mb-2">85%</div>
+                <div className="text-3xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300">85%</div>
                 <div className="text-white/90 mb-4">Taxa de aprovação em processos</div>
                 <div className="flex gap-2">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-0 hover:bg-white/30 transition-colors">
                     Preparação Eficaz
                   </Badge>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-0">
+                  <Badge variant="secondary" className="bg-white/20 text-white border-0 hover:bg-white/30 transition-colors">
                     Confiança Total
                   </Badge>
                 </div>
@@ -110,7 +120,8 @@ const AboutSection = () => {
         <div className="text-center">
           <Button 
             size="lg" 
-            className="bg-gradient-primary hover:opacity-90 shadow-nexus text-lg px-8 py-3 h-auto"
+            className="bg-gradient-primary hover:opacity-90 shadow-nexus text-lg px-8 py-3 h-auto transition-all duration-300 transform hover:scale-105 hover:shadow-glow"
+            onClick={handleStartJourney}
           >
             Comece Sua Jornada Profissional
           </Button>

@@ -40,22 +40,22 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Recursos</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-background/80 hover:text-background transition-colors">
+                <a href="#" className="text-background/80 hover:text-background transition-all duration-300 hover:translate-x-1 inline-block">
                   Otimização de Currículo
                 </a>
               </li>
               <li>
-                <a href="#" className="text-background/80 hover:text-background transition-colors">
+                <a href="#" className="text-background/80 hover:text-background transition-all duration-300 hover:translate-x-1 inline-block">
                   Preparação para Entrevistas
                 </a>
               </li>
               <li>
-                <a href="#" className="text-background/80 hover:text-background transition-colors">
+                <a href="#" className="text-background/80 hover:text-background transition-all duration-300 hover:translate-x-1 inline-block">
                   Busca de Vagas
                 </a>
               </li>
               <li>
-                <a href="#" className="text-background/80 hover:text-background transition-colors">
+                <a href="#" className="text-background/80 hover:text-background transition-all duration-300 hover:translate-x-1 inline-block">
                   Desenvolvimento de Skills
                 </a>
               </li>
@@ -102,9 +102,9 @@ const Footer = () => {
             <div className="flex gap-2">
               <Input 
                 placeholder="Seu melhor e-mail"
-                className="bg-background/10 border-background/20 text-background placeholder:text-background/50"
+                className="bg-background/10 border-background/20 text-background placeholder:text-background/50 transition-all duration-300 focus:bg-background/20 focus:border-background/40"
               />
-              <Button className="bg-gradient-primary hover:opacity-90 px-6">
+              <Button className="bg-gradient-primary hover:opacity-90 px-6 transition-all duration-300 transform hover:scale-105">
                 Inscrever
               </Button>
             </div>

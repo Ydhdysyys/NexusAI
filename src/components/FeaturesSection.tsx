@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   FileText, 
   MessageSquare, 
@@ -49,6 +50,15 @@ const features = [
 ];
 
 const FeaturesSection = () => {
+  const { toast } = useToast();
+
+  const handleFeatureClick = (featureTitle: string, action: string) => {
+    toast({
+      title: `${featureTitle}`,
+      description: `${action} será disponibilizado em breve! Cadastre-se para ser notificado.`,
+      duration: 3000,
+    });
+  };
   return (
     <section id="recursos" className="py-20 bg-muted/30">
       <div className="container mx-auto px-4">
@@ -65,12 +75,16 @@ const FeaturesSection = () => {
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <Card key={index} className="group hover:shadow-nexus transition-all duration-300 border-0 bg-card/50 backdrop-blur-sm">
+              <Card 
+                key={index} 
+                className="group hover:shadow-nexus transition-all duration-500 border-0 bg-card/50 backdrop-blur-sm hover:-translate-y-2 animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 p-3 rounded-2xl bg-gradient-primary w-fit group-hover:scale-110 transition-transform duration-300">
+                  <div className="mx-auto mb-4 p-3 rounded-2xl bg-gradient-primary w-fit group-hover:scale-110 transition-all duration-500 group-hover:rotate-6">
                     <Icon className="h-8 w-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl mb-2">{feature.title}</CardTitle>
+                  <CardTitle className="text-xl mb-2 group-hover:text-primary transition-colors duration-300">{feature.title}</CardTitle>
                   <CardDescription className="text-muted-foreground">
                     {feature.description}
                   </CardDescription>
@@ -78,7 +92,8 @@ const FeaturesSection = () => {
                 <CardContent className="text-center">
                   <Button 
                     variant="outline" 
-                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                    className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                    onClick={() => handleFeatureClick(feature.title, feature.action)}
                   >
                     {feature.action}
                   </Button>
@@ -91,7 +106,8 @@ const FeaturesSection = () => {
         <div className="text-center mt-16">
           <Button 
             size="lg" 
-            className="bg-gradient-primary hover:opacity-90 shadow-nexus text-lg px-8 py-3 h-auto"
+            className="bg-gradient-primary hover:opacity-90 shadow-nexus text-lg px-8 py-3 h-auto transition-all duration-300 transform hover:scale-105 hover:shadow-glow animate-pulse-glow"
+            onClick={() => handleFeatureClick("Recursos Completos", "Acesso a todos os recursos")}
           >
             Experimentar Todos os Recursos
           </Button>
