@@ -39,6 +39,14 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -47,16 +55,27 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        nexus: {
+          purple: "hsl(var(--nexus-purple))",
+          "purple-light": "hsl(var(--nexus-purple-light))",
+          "purple-dark": "hsl(var(--nexus-purple-dark))",
+          blue: "hsl(var(--nexus-blue))",
+          "blue-light": "hsl(var(--nexus-blue-light))",
+          cyan: "hsl(var(--nexus-cyan))",
+          emerald: "hsl(var(--nexus-emerald))",
         },
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-secondary": "var(--gradient-secondary)",
+        "gradient-success": "var(--gradient-success)",
+      },
+      boxShadow: {
+        nexus: "var(--shadow-nexus)",
+        glow: "var(--shadow-glow)",
+      },
+      transitionTimingFunction: {
+        nexus: "var(--transition-nexus)",
       },
       borderRadius: {
         lg: "var(--radius)",
