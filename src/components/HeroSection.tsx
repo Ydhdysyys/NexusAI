@@ -1,17 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import heroImage from "@/assets/nexus-hero.jpg";
 
 const HeroSection = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleGetStarted = () => {
-    toast({
-      title: "Bem-vindo ao NexusAI!",
-      description: "Para começar, faça seu cadastro usando o botão 'Cadastrar' no menu.",
-      duration: 5000,
-    });
+    if (user) {
+      navigate('/dashboard');
+      toast({
+        title: "Redirecionando para Dashboard",
+        description: "Acesse todas as funcionalidades do NexusAI"
+      });
+    } else {
+      navigate('/auth', { state: { mode: 'register' } });
+      toast({
+        title: "Bem-vindo ao NexusAI!",
+        description: "Para começar, complete seu cadastro.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleDemo = () => {
@@ -49,7 +62,7 @@ const HeroSection = () => {
                 className="bg-gradient-primary hover:opacity-90 shadow-nexus text-lg px-8 py-3 h-auto transition-all duration-300 transform hover:scale-105 hover:shadow-glow"
                 onClick={handleGetStarted}
               >
-                Começar Agora
+                {user ? 'Acessar Dashboard' : 'Começar Agora'}
                 <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
               <Button 

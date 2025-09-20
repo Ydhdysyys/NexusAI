@@ -1,26 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Brain, Menu, X } from "lucide-react";
 import { useState } from "react";
-import AuthModal from "@/components/AuthModal";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: 'login' | 'register' }>({
-    isOpen: false,
-    mode: 'login'
-  });
 
-  const openAuthModal = (mode: 'login' | 'register') => {
-    setAuthModal({ isOpen: true, mode });
+  const handleAuthClick = (mode: 'login' | 'register') => {
+    navigate('/auth', { state: { mode } });
     setIsMenuOpen(false);
   };
 
-  const closeAuthModal = () => {
-    setAuthModal({ isOpen: false, mode: 'login' });
-  };
-
-  const switchAuthMode = (mode: 'login' | 'register') => {
-    setAuthModal({ isOpen: true, mode });
+  const handleLogout = async () => {
+    await signOut();
+    setIsMenuOpen(false);
   };
 
   return (
@@ -62,19 +58,42 @@ const Header = () => {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              <Button 
-                variant="outline" 
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105"
-                onClick={() => openAuthModal('login')}
-              >
-                Login
-              </Button>
-              <Button 
-                className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300 transform hover:scale-105 hover:shadow-glow"
-                onClick={() => openAuthModal('register')}
-              >
-                Cadastrar
-              </Button>
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-muted-foreground">
+                    Olá, {user.email}
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Dashboard
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={handleLogout}
+                  >
+                    Sair
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105"
+                    onClick={() => handleAuthClick('login')}
+                  >
+                    Login
+                  </Button>
+                  <Button 
+                    className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300 transform hover:scale-105 hover:shadow-glow"
+                    onClick={() => handleAuthClick('register')}
+                  >
+                    Cadastrar
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -109,19 +128,39 @@ const Header = () => {
                   Contato
                 </a>
                 <div className="flex flex-col space-y-2 pt-4">
-                  <Button 
-                    variant="outline" 
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                    onClick={() => openAuthModal('login')}
-                  >
-                    Login
-                  </Button>
-                  <Button 
-                    className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300"
-                    onClick={() => openAuthModal('register')}
-                  >
-                    Cadastrar
-                  </Button>
+                  {user ? (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                        onClick={() => navigate('/dashboard')}
+                      >
+                        Dashboard
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={handleLogout}
+                      >
+                        Sair
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                        onClick={() => handleAuthClick('login')}
+                      >
+                        Login
+                      </Button>
+                      <Button 
+                        className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300"
+                        onClick={() => handleAuthClick('register')}
+                      >
+                        Cadastrar
+                      </Button>
+                    </>
+                  )}
                 </div>
               </nav>
             </div>
@@ -129,13 +168,6 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={authModal.isOpen}
-        onClose={closeAuthModal}
-        mode={authModal.mode}
-        onSwitchMode={switchAuthMode}
-      />
     </>
   );
 };
