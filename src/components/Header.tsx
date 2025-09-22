@@ -3,6 +3,7 @@ import { Brain, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import UserProfile from "@/components/UserProfile";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -14,7 +15,7 @@ const Header = () => {
     setIsMenuOpen(false);
   };
 
-  const handleLogout = async () => {
+  const handleMobileLogout = async () => {
     await signOut();
     setIsMenuOpen(false);
   };
@@ -56,27 +57,10 @@ const Header = () => {
               </a>
             </nav>
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons / User Profile */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-muted-foreground">
-                    Olá, {user.email}
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105"
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    Dashboard
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={handleLogout}
-                  >
-                    Sair
-                  </Button>
-                </div>
+                <UserProfile />
               ) : (
                 <>
                   <Button 
@@ -139,7 +123,7 @@ const Header = () => {
                       </Button>
                       <Button 
                         variant="outline"
-                        onClick={handleLogout}
+                        onClick={handleMobileLogout}
                       >
                         Sair
                       </Button>
