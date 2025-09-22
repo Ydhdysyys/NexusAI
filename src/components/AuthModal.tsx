@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Modal from "@/components/ui/modal";
-import { Eye, EyeOff, Mail, Lock, User, Check } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 interface AuthModalProps {
@@ -14,17 +15,16 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
-  const { signUp, signIn, verifyOtp, resendConfirmation, user } = useAuth();
+  const { signUp, signIn, user } = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    verificationCode: ''
+    confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [step, setStep] = useState<'form' | 'verify'>('form');
 
   // Close modal if user becomes authenticated
   useEffect(() => {
@@ -52,7 +52,7 @@ const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
         
         const { error } = await signUp(formData.email, formData.password, formData.name);
         if (!error) {
-          setStep('verify');
+          onClose();
         }
       } else {
         const { error } = await signIn(formData.email, formData.password);
@@ -67,48 +67,21 @@ const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
     }
   };
 
-  const handleVerification = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const { error } = await verifyOtp(formData.email, formData.verificationCode);
-      if (!error) {
-        onClose();
-      }
-    } catch (error: any) {
-      console.error('Verification error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleResendCode = async () => {
-    setIsLoading(true);
-    try {
-      await resendConfirmation(formData.email);
-    } catch (error: any) {
-      console.error('Resend error:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const resetModal = () => {
     setFormData({
       name: '',
       email: '',
       password: '',
-      confirmPassword: '',
-      verificationCode: ''
+      confirmPassword: ''
     });
-    setStep('form');
     setShowPassword(false);
   };
 
   const handleClose = () => {
     resetModal();
     onClose();
+    navigate('/');
   };
 
   const handleSwitchMode = (newMode: 'login' | 'register') => {
@@ -116,71 +89,6 @@ const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
     onSwitchMode(newMode);
   };
 
-  if (step === 'verify') {
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={handleClose}
-        title="Verificar E-mail"
-      >
-        <div className="text-center space-y-6">
-          <div className="mx-auto w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
-            <Mail className="h-8 w-8 text-success" />
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Confirme seu e-mail</h3>
-            <p className="text-muted-foreground">
-              Enviamos um código de verificação para<br />
-              <strong>{formData.email}</strong>
-            </p>
-          </div>
-
-          <form onSubmit={handleVerification} className="space-y-4">
-            <div>
-              <Label htmlFor="verification-code">Código de Verificação</Label>
-              <Input
-                id="verification-code"
-                placeholder="Digite o código de 6 dígitos"
-                className="text-center text-lg tracking-widest"
-                maxLength={6}
-                value={formData.verificationCode}
-                onChange={(e) => handleInputChange('verificationCode', e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="space-y-3">
-              <Button 
-                type="submit"
-                className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                ) : (
-                  <>
-                    <Check className="mr-2 h-4 w-4" />
-                    Verificar E-mail
-                  </>
-                )}
-              </Button>
-              
-              <Button 
-                type="button"
-                variant="ghost" 
-                className="w-full text-muted-foreground hover:text-foreground transition-colors"
-                onClick={handleResendCode}
-                disabled={isLoading}
-              >
-                Reenviar código
-              </Button>
-            </div>
-          </form>
-        </div>
-      </Modal>
-    );
-  }
 
   return (
     <Modal

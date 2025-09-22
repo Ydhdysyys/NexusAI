@@ -10,8 +10,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  verifyOtp: (email: string, token: string) => Promise<{ error: any }>;
-  resendConfirmation: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,16 +21,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName
-        }
+        },
+        emailRedirectTo: undefined // Disable email confirmation
       }
     });
 
@@ -41,6 +37,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         variant: "destructive",
         title: "Erro no cadastro",
         description: error.message
+      });
+    } else {
+      toast({
+        title: "Conta criada!",
+        description: "Bem-vindo ao NexusAI"
       });
     }
 
@@ -79,55 +80,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const verifyOtp = async (email: string, token: string) => {
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type: 'signup'
-    });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro na verificação",
-        description: error.message
-      });
-    } else {
-      toast({
-        title: "E-mail verificado!",
-        description: "Sua conta foi ativada com sucesso"
-      });
-    }
-
-    return { error };
-  };
-
-  const resendConfirmation = async (email: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-
-    if (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao reenviar",
-        description: error.message
-      });
-    } else {
-      toast({
-        title: "E-mail reenviado",
-        description: "Verifique sua caixa de entrada"
-      });
-    }
-
-    return { error };
-  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -156,9 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loading,
       signUp,
       signIn,
-      signOut,
-      verifyOtp,
-      resendConfirmation
+      signOut
     }}>
       {children}
     </AuthContext.Provider>

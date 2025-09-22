@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import AuthModal from '@/components/AuthModal';
 import { Brain } from 'lucide-react';
@@ -7,6 +7,7 @@ import { Brain } from 'lucide-react';
 const Auth = () => {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
 
   // Set initial mode based on navigation state
@@ -43,7 +44,7 @@ const Auth = () => {
         {/* Auth Modal as Component */}
         <AuthModal
           isOpen={true}
-          onClose={() => {}} // Don't allow closing on auth page
+          onClose={() => navigate('/')} // Navigate back to homepage
           mode={authMode}
           onSwitchMode={setAuthMode}
         />
