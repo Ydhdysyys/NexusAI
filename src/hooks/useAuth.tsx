@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         data: {
           full_name: fullName
         },
-        emailRedirectTo: undefined // Disable email confirmation
+        emailRedirectTo: `${window.location.origin}/dashboard`
       }
     });
 
