@@ -15,7 +15,7 @@ interface AuthModalProps {
 }
 
 const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, resendConfirmation } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -52,8 +52,9 @@ const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
         
         const { error } = await signUp(formData.email, formData.password, formData.name);
         if (!error) {
-          onClose();
-          navigate('/dashboard');
+          // Não redireciona imediatamente: o usuário precisa confirmar o e-mail.
+          // Trocamos para o modo login para ele entrar após confirmar.
+          handleSwitchMode('login');
         }
       } else {
         const { error } = await signIn(formData.email, formData.password);
@@ -186,7 +187,20 @@ const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
           )}
         </Button>
 
-        <div className="text-center">
+        <div className="space-y-3 text-center">
+          {mode === 'login' && (
+            <div className="text-xs text-muted-foreground">
+              <span>Não recebeu o e-mail de confirmação?</span>{' '}
+              <button
+                type="button"
+                onClick={() => resendConfirmation(formData.email)}
+                disabled={!formData.email || isLoading}
+                className="underline text-primary hover:text-primary/80 disabled:opacity-50"
+              >
+                Reenviar e-mail
+              </button>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => handleSwitchMode(mode === 'login' ? 'register' : 'login')}

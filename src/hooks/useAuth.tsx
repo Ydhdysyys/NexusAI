@@ -24,6 +24,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  resendConfirmation: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       toast({
         title: "Conta criada!",
-        description: "Bem-vindo ao NexusAI"
+        description: "Enviamos um e-mail de confirmação. Confirme para acessar o Dashboard."
       });
     }
 
@@ -86,11 +87,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     if (error) {
-      toast({
-        variant: "destructive", 
-        title: "Erro no login",
-        description: error.message
-      });
+      const msg = error.message?.toLowerCase?.() || '';
+      if (msg.includes('email not confirmed')) {
+        await supabase.auth.resend({ type: 'signup', email });
+        toast({
+          title: "Confirme seu e-mail",
+          description: "Reenviamos o link de confirmação. Verifique sua caixa de entrada e spam."
+        });
+      } else {
+        toast({
+          variant: "destructive", 
+          title: "Erro no login",
+          description: error.message
+        });
+      }
     } else {
       toast({
         title: "Login realizado!",
@@ -111,6 +121,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resendConfirmation = async (email: string) => {
+    const { error } = await supabase.auth.resend({ type: 'signup', email });
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao reenviar e-mail",
+        description: error.message
+      });
+    } else {
+      toast({
+        title: "E-mail reenviado",
+        description: "Verifique sua caixa de entrada e spam."
+      });
+    }
+    return { error };
+  };
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -155,7 +181,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loading,
       signUp,
       signIn,
-      signOut
+      signOut,
+      resendConfirmation
     }}>
       {children}
     </AuthContext.Provider>
