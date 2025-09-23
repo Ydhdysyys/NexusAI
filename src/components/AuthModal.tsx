@@ -53,11 +53,13 @@ const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
         const { error } = await signUp(formData.email, formData.password, formData.name);
         if (!error) {
           onClose();
+          navigate('/dashboard');
         }
       } else {
         const { error } = await signIn(formData.email, formData.password);
         if (!error) {
           onClose();
+          navigate('/dashboard');
         }
       }
     } catch (error: any) {
