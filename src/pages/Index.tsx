@@ -9,7 +9,7 @@ import PageTransition from "@/components/PageTransition";
 const Index = () => {
   return (
     <PageTransition>
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <Header />
         <main>
           <HeroSection />
