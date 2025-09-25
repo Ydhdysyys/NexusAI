@@ -4,8 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Brain, User, BookOpen, Target, TrendingUp, LogOut } from 'lucide-react';
+import { Brain, User, BookOpen, Target, TrendingUp, LogOut, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ResumeBuilder from '@/components/ResumeBuilder';
+import InterviewPrep from '@/components/InterviewPrep';
+import SkillsDevelopment from '@/components/SkillsDevelopment';
 
 interface Profile {
   id: string;
@@ -22,6 +25,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<'home' | 'resume' | 'interview' | 'skills'>('home');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -53,6 +57,128 @@ const Dashboard = () => {
   const handleLogout = async () => {
     await signOut();
   };
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'resume':
+        return <ResumeBuilder />;
+      case 'interview':
+        return <InterviewPrep />;
+      case 'skills':
+        return <SkillsDevelopment />;
+      default:
+        return renderHomeContent();
+    }
+  };
+
+  const renderHomeContent = () => (
+    <>
+      {/* Welcome Section */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+          Bem-vindo ao NexusAI
+        </h1>
+        <p className="text-xl text-muted-foreground">
+          Sua jornada profissional personalizada começa agora
+        </p>
+      </div>
+
+      {/* Profile Card */}
+      <Card className="border-primary/20 shadow-nexus">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <User className="h-5 w-5 text-primary" />
+            <span>Seu Perfil</span>
+          </CardTitle>
+          <CardDescription>
+            Informações do seu perfil profissional
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Nome</p>
+              <p className="text-lg">{profile?.full_name || 'Não informado'}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">E-mail</p>
+              <p className="text-lg">{profile?.email}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Área de Interesse</p>
+              <p className="text-lg">{profile?.career_field || 'Não definida'}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Nível de Experiência</p>
+              <Badge variant={profile?.experience_level === 'entry' ? 'secondary' : 'default'}>
+                {profile?.experience_level === 'entry' ? 'Iniciante' : profile?.experience_level}
+              </Badge>
+            </div>
+          </div>
+          {profile?.bio && (
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Bio</p>
+              <p className="text-base">{profile.bio}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Features Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card 
+          className="border-primary/20 hover:shadow-glow transition-all duration-300 cursor-pointer"
+          onClick={() => setActiveSection('resume')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <span>Currículo Inteligente</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Crie e otimize seu currículo com IA personalizada para sua área
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="border-primary/20 hover:shadow-glow transition-all duration-300 cursor-pointer"
+          onClick={() => setActiveSection('interview')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <Target className="h-5 w-5 text-primary" />
+              <span>Preparação para Entrevistas</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Treine com simulações de entrevistas personalizadas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="border-primary/20 hover:shadow-glow transition-all duration-300 cursor-pointer"
+          onClick={() => setActiveSection('skills')}
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-lg">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <span>Desenvolvimento de Habilidades</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Identifique e desenvolva as habilidades mais demandadas
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </>
+  );
 
   if (loading) {
     return (
@@ -97,102 +223,18 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Welcome Section */}
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Bem-vindo ao NexusAI
-            </h1>
-            <p className="text-xl text-muted-foreground">
-              Sua jornada profissional personalizada começa agora
-            </p>
-          </div>
-
-          {/* Profile Card */}
-          <Card className="border-primary/20 shadow-nexus">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5 text-primary" />
-                <span>Seu Perfil</span>
-              </CardTitle>
-              <CardDescription>
-                Informações do seu perfil profissional
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Nome</p>
-                  <p className="text-lg">{profile?.full_name || 'Não informado'}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">E-mail</p>
-                  <p className="text-lg">{profile?.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Área de Interesse</p>
-                  <p className="text-lg">{profile?.career_field || 'Não definida'}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Nível de Experiência</p>
-                  <Badge variant={profile?.experience_level === 'entry' ? 'secondary' : 'default'}>
-                    {profile?.experience_level === 'entry' ? 'Iniciante' : profile?.experience_level}
-                  </Badge>
-                </div>
-              </div>
-              {profile?.bio && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Bio</p>
-                  <p className="text-base">{profile.bio}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border-primary/20 hover:shadow-glow transition-all duration-300 cursor-pointer">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <BookOpen className="h-5 w-5 text-primary" />
-                  <span>Currículo Inteligente</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Crie e otimize seu currículo com IA personalizada para sua área
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20 hover:shadow-glow transition-all duration-300 cursor-pointer">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <Target className="h-5 w-5 text-primary" />
-                  <span>Preparação para Entrevistas</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Treine com simulações de entrevistas personalizadas
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/20 hover:shadow-glow transition-all duration-300 cursor-pointer">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-lg">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  <span>Desenvolvimento de Habilidades</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Identifique e desenvolva as habilidades mais demandadas
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="max-w-6xl mx-auto space-y-8">
+          {activeSection !== 'home' && (
+            <Button 
+              variant="outline" 
+              onClick={() => setActiveSection('home')}
+              className="flex items-center space-x-2 mb-4"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Voltar ao Dashboard</span>
+            </Button>
+          )}
+          {renderContent()}
         </div>
       </main>
     </div>

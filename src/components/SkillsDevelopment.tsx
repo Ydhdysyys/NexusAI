@@ -1,0 +1,418 @@
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { TrendingUp, Star, Plus, BookOpen, Award, Target, Play } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  level: number;
+  target: number;
+  description: string;
+  resources: string[];
+}
+
+interface Course {
+  id: string;
+  title: string;
+  provider: string;
+  duration: string;
+  level: string;
+  skills: string[];
+  progress: number;
+}
+
+const SkillsDevelopment = () => {
+  const { toast } = useToast();
+  const [skills, setSkills] = useState<Skill[]>([
+    {
+      id: '1',
+      name: 'JavaScript',
+      category: 'Programação',
+      level: 6,
+      target: 9,
+      description: 'Linguagem de programação essencial para desenvolvimento web',
+      resources: ['MDN Web Docs', 'JavaScript.info', 'Eloquent JavaScript']
+    },
+    {
+      id: '2',
+      name: 'React',
+      category: 'Frontend',
+      level: 5,
+      target: 8,
+      description: 'Biblioteca JavaScript para construção de interfaces',
+      resources: ['Documentação Oficial', 'React Tutorial', 'React Patterns']
+    },
+    {
+      id: '3',
+      name: 'Comunicação',
+      category: 'Soft Skills',
+      level: 7,
+      target: 9,
+      description: 'Habilidade essencial para trabalho em equipe',
+      resources: ['Curso de Oratória', 'Livros de Comunicação', 'Prática Diária']
+    }
+  ]);
+
+  const [courses, setCourses] = useState<Course[]>([
+    {
+      id: '1',
+      title: 'JavaScript Completo ES6+',
+      provider: 'Origamid',
+      duration: '40 horas',
+      level: 'Intermediário',
+      skills: ['JavaScript', 'ES6+', 'DOM'],
+      progress: 65
+    },
+    {
+      id: '2',
+      title: 'React - The Complete Guide',
+      provider: 'Udemy',
+      duration: '48 horas',
+      level: 'Avançado',
+      skills: ['React', 'Redux', 'Hooks'],
+      progress: 30
+    },
+    {
+      id: '3',
+      title: 'Soft Skills para Desenvolvedores',
+      provider: 'Alura',
+      duration: '20 horas',
+      level: 'Iniciante',
+      skills: ['Comunicação', 'Liderança', 'Trabalho em Equipe'],
+      progress: 80
+    }
+  ]);
+
+  const [newSkill, setNewSkill] = useState({
+    name: '',
+    category: '',
+    level: 1,
+    target: 10,
+    description: ''
+  });
+
+  const addSkill = () => {
+    if (!newSkill.name || !newSkill.category) {
+      toast({
+        variant: "destructive",
+        title: "Campos obrigatórios",
+        description: "Preencha o nome e categoria da habilidade"
+      });
+      return;
+    }
+
+    const skill: Skill = {
+      id: Date.now().toString(),
+      ...newSkill,
+      resources: []
+    };
+
+    setSkills([...skills, skill]);
+    setNewSkill({
+      name: '',
+      category: '',
+      level: 1,
+      target: 10,
+      description: ''
+    });
+
+    toast({
+      title: "Habilidade adicionada!",
+      description: `${skill.name} foi adicionada ao seu plano de desenvolvimento`
+    });
+  };
+
+  const updateSkillLevel = (skillId: string, newLevel: number) => {
+    setSkills(skills.map(skill => 
+      skill.id === skillId ? { ...skill, level: newLevel } : skill
+    ));
+    
+    toast({
+      title: "Progresso atualizado!",
+      description: "Parabéns pelo seu desenvolvimento!"
+    });
+  };
+
+  const getSkillProgress = (skill: Skill) => {
+    return (skill.level / skill.target) * 100;
+  };
+
+  const getRecommendations = (category: string) => {
+    const recommendations = {
+      'Programação': [
+        'Pratique coding challenges diariamente',
+        'Contribua para projetos open source',
+        'Implemente projetos pessoais'
+      ],
+      'Frontend': [
+        'Construa interfaces responsivas',
+        'Aprenda sobre acessibilidade',
+        'Estude design patterns'
+      ],
+      'Soft Skills': [
+        'Participe de apresentações',
+        'Pratique feedback construtivo',
+        'Desenvolva inteligência emocional'
+      ]
+    };
+    return recommendations[category as keyof typeof recommendations] || [];
+  };
+
+  const categories = Array.from(new Set(skills.map(skill => skill.category)));
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            Desenvolvimento de Habilidades
+          </h2>
+          <p className="text-muted-foreground">
+            Identifique e desenvolva as habilidades mais demandadas
+          </p>
+        </div>
+      </div>
+
+      <Tabs defaultValue="skills" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="skills">Minhas Habilidades</TabsTrigger>
+          <TabsTrigger value="courses">Cursos</TabsTrigger>
+          <TabsTrigger value="recommendations">Recomendações</TabsTrigger>
+          <TabsTrigger value="add">Adicionar</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="skills" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {skills.map((skill) => (
+              <Card key={skill.id} className="border-primary/20">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">{skill.name}</CardTitle>
+                    <Badge variant="secondary">{skill.category}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">
+                        Nível Atual: {skill.level}/10
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        Meta: {skill.target}/10
+                      </span>
+                    </div>
+                    <Progress value={getSkillProgress(skill)} className="h-2" />
+                  </div>
+                  
+                  {skill.description && (
+                    <p className="text-sm text-muted-foreground">
+                      {skill.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      size="sm"
+                      onClick={() => updateSkillLevel(skill.id, Math.min(skill.level + 1, 10))}
+                      disabled={skill.level >= skill.target}
+                    >
+                      <TrendingUp className="h-4 w-4 mr-1" />
+                      Evoluir
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => updateSkillLevel(skill.id, Math.max(skill.level - 1, 0))}
+                      disabled={skill.level <= 0}
+                    >
+                      -1
+                    </Button>
+                  </div>
+
+                  {skill.resources.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium mb-1">Recursos:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {skill.resources.slice(0, 2).map((resource, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {resource}
+                          </Badge>
+                        ))}
+                        {skill.resources.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{skill.resources.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="courses" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {courses.map((course) => (
+              <Card key={course.id}>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    <span>{course.title}</span>
+                  </CardTitle>
+                  <CardDescription>
+                    {course.provider} • {course.duration} • {course.level}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Progresso</span>
+                      <span className="text-sm text-muted-foreground">
+                        {course.progress}%
+                      </span>
+                    </div>
+                    <Progress value={course.progress} className="h-2" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium mb-2">Habilidades:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {course.skills.map((skill) => (
+                        <Badge key={skill} variant="outline">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Button 
+                    className="w-full"
+                    disabled={course.progress >= 100}
+                  >
+                    {course.progress >= 100 ? (
+                      <>
+                        <Award className="h-4 w-4 mr-2" />
+                        Concluído
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-4 w-4 mr-2" />
+                        Continuar
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="recommendations" className="space-y-6">
+          {categories.map((category) => (
+            <Card key={category}>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  <span>Recomendações para {category}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {getRecommendations(category).map((recommendation, index) => (
+                    <li key={index} className="flex items-start space-x-2">
+                      <Star className="h-4 w-4 text-yellow-500 mt-1 flex-shrink-0" />
+                      <span className="text-sm">{recommendation}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+
+        <TabsContent value="add" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Plus className="h-5 w-5 text-primary" />
+                <span>Adicionar Nova Habilidade</span>
+              </CardTitle>
+              <CardDescription>
+                Defina uma nova habilidade para acompanhar seu desenvolvimento
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="skillName">Nome da Habilidade</Label>
+                  <Input
+                    id="skillName"
+                    value={newSkill.name}
+                    onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
+                    placeholder="Ex: Python, Liderança, Design..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="skillCategory">Categoria</Label>
+                  <Input
+                    id="skillCategory"
+                    value={newSkill.category}
+                    onChange={(e) => setNewSkill({...newSkill, category: e.target.value})}
+                    placeholder="Ex: Programação, Soft Skills..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="skillLevel">Nível Atual (1-10)</Label>
+                  <Input
+                    id="skillLevel"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={newSkill.level}
+                    onChange={(e) => setNewSkill({...newSkill, level: parseInt(e.target.value) || 1})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="skillTarget">Meta (1-10)</Label>
+                  <Input
+                    id="skillTarget"
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={newSkill.target}
+                    onChange={(e) => setNewSkill({...newSkill, target: parseInt(e.target.value) || 10})}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="skillDescription">Descrição (opcional)</Label>
+                <Input
+                  id="skillDescription"
+                  value={newSkill.description}
+                  onChange={(e) => setNewSkill({...newSkill, description: e.target.value})}
+                  placeholder="Breve descrição da habilidade..."
+                />
+              </div>
+              <Button onClick={addSkill} className="w-full">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Habilidade
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default SkillsDevelopment;
