@@ -12,6 +12,7 @@ interface Profile {
   bio?: string;
   career_field?: string;
   experience_level?: string;
+  role?: 'admin' | 'client';
   created_at: string;
   updated_at: string;
 }
@@ -21,7 +22,7 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, role?: 'admin' | 'client') => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -51,15 +52,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'client' = 'client') => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          full_name: fullName
-        },
-        emailRedirectTo: `${window.location.origin}/dashboard`
+          full_name: fullName,
+          role: role
+        }
       }
     });
 
