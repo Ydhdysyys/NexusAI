@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import UserProfile from "@/components/UserProfile";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleAuthClick = (mode: 'login' | 'register') => {
+  const handleAuthClick = (mode: 'login' | 'signup') => {
     navigate('/auth', { state: { mode } });
     setIsMenuOpen(false);
   };
@@ -59,6 +60,7 @@ const Header = () => {
 
             {/* Auth Buttons / User Profile */}
             <div className="hidden md:flex items-center space-x-4">
+              <ThemeToggle />
               {user ? (
                 <UserProfile />
               ) : (
@@ -72,7 +74,7 @@ const Header = () => {
                   </Button>
                   <Button 
                     className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300 transform hover:scale-105 hover:shadow-glow"
-                    onClick={() => handleAuthClick('register')}
+                    onClick={() => handleAuthClick('signup')}
                   >
                     Cadastrar
                   </Button>
@@ -112,6 +114,7 @@ const Header = () => {
                   Contato
                 </a>
                 <div className="flex flex-col space-y-2 pt-4">
+                  <ThemeToggle />
                   {user ? (
                     <>
                       <Button 
@@ -139,7 +142,7 @@ const Header = () => {
                       </Button>
                       <Button 
                         className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300"
-                        onClick={() => handleAuthClick('register')}
+                        onClick={() => handleAuthClick('signup')}
                       >
                         Cadastrar
                       </Button>

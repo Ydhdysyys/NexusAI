@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import ResumeBuilder from '@/components/ResumeBuilder';
 import InterviewPrep from '@/components/InterviewPrep';
 import SkillsDevelopment from '@/components/SkillsDevelopment';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface Profile {
   id: string;
@@ -203,19 +204,19 @@ const Dashboard = () => {
               </span>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">
-                Olá, {profile?.full_name || user?.email}
-              </span>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Sair</span>
-              </Button>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <ThemeToggle />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>

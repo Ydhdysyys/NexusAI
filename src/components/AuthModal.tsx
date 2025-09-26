@@ -1,205 +1,297 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import Modal from "@/components/ui/modal";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Brain, Mail, Lock, User, Shield, Users } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
 
 interface AuthModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  mode: 'login' | 'register';
-  onSwitchMode: (mode: 'login' | 'register') => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  mode?: 'login' | 'signup';
 }
 
-const AuthModal = ({ isOpen, onClose, mode, onSwitchMode }: AuthModalProps) => {
-  const { signUp, signIn, user } = useAuth();
+const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModalProps) => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
+  const { signIn, signUp } = useAuth();
+  const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
+  const [loading, setLoading] = useState(false);
+  
+  // Login form state
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
+  });
+
+  // Signup form state  
+  const [signupData, setSignupData] = useState({
+    fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    role: 'client' as 'admin' | 'client'
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  // Close modal if user becomes authenticated
-  useEffect(() => {
-    if (user && isOpen) {
-      onClose();
-    }
-  }, [user, isOpen, onClose]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+  // Validation schemas
+  const loginSchema = z.object({
+    email: z.string().email('E-mail inválido'),
+    password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres')
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const signupSchema = z.object({
+    fullName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+    email: z.string().email('E-mail inválido'),
+    password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+    confirmPassword: z.string(),
+    role: z.enum(['admin', 'client'])
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: "Senhas não coincidem",
+    path: ["confirmPassword"],
+  });
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
+    setLoading(true);
+    setErrors({});
+
     try {
-      if (mode === 'register') {
-        if (formData.password !== formData.confirmPassword) {
-          throw new Error('As senhas não coincidem');
-        }
-        
-        const { error } = await signUp(formData.email, formData.password, formData.name);
-        if (!error) {
-          onClose();
-          navigate('/dashboard');
-        }
-      } else {
-        const { error } = await signIn(formData.email, formData.password);
-        if (!error) {
-          onClose();
-          navigate('/dashboard');
-        }
+      const validatedData = loginSchema.parse(loginData);
+      const { error } = await signIn(validatedData.email, validatedData.password);
+      
+      if (!error) {
+        onOpenChange(false);
+        navigate('/dashboard');
       }
-    } catch (error: any) {
-      console.error('Authentication error:', error);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+      }
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrors({});
 
-  const resetModal = () => {
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    });
-    setShowPassword(false);
+    try {
+      const validatedData = signupSchema.parse(signupData);
+      const { error } = await signUp(
+        validatedData.email, 
+        validatedData.password, 
+        validatedData.fullName,
+        validatedData.role
+      );
+      
+      if (!error) {
+        onOpenChange(false);
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldErrors: Record<string, string> = {};
+        error.issues.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handleClose = () => {
-    resetModal();
-    onClose();
-    navigate('/');
-  };
-
-  const handleSwitchMode = (newMode: 'login' | 'register') => {
-    resetModal();
-    onSwitchMode(newMode);
-  };
-
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={mode === 'login' ? 'Entrar na sua conta' : 'Criar conta no NexusAI'}
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {mode === 'register' && (
-          <div className="space-y-2">
-            <Label htmlFor="name">Nome Completo</Label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="name"
-                type="text"
-                placeholder="Seu nome completo"
-                className="pl-10 transition-all duration-300 focus:shadow-glow"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                required
-              />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center justify-center mb-2">
+            <div className="p-3 rounded-xl bg-gradient-primary">
+              <Brain className="h-8 w-8 text-white" />
             </div>
           </div>
-        )}
-
-        <div className="space-y-2">
-          <Label htmlFor="email">E-mail</Label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="email"
-              type="email"
-              placeholder="seu@email.com"
-              className="pl-10 transition-all duration-300 focus:shadow-glow"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Senha</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              className="pl-10 pr-10 transition-all duration-300 focus:shadow-glow"
-              value={formData.password}
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
-
-        {mode === 'register' && (
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar Senha</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="confirmPassword"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                className="pl-10 transition-all duration-300 focus:shadow-glow"
-                value={formData.confirmPassword}
-                onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                required
-              />
-            </div>
-          </div>
-        )}
-
-        <Button 
-          type="submit" 
-          className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300 transform hover:scale-[1.02]"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-          ) : (
-            mode === 'login' ? 'Entrar' : 'Criar Conta'
-          )}
-        </Button>
-
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => handleSwitchMode(mode === 'login' ? 'register' : 'login')}
-            className="text-primary hover:text-primary/80 transition-colors text-sm"
-          >
+          <DialogTitle className="text-center text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            {mode === 'login' ? 'Bem-vindo de volta' : 'Criar sua conta'}
+          </DialogTitle>
+          <DialogDescription className="text-center">
             {mode === 'login' 
-              ? 'Não tem uma conta? Cadastre-se' 
-              : 'Já tem uma conta? Entre'
+              ? 'Entre na sua conta para continuar' 
+              : 'Junte-se ao NexusAI e acelere sua carreira'
             }
-          </button>
-        </div>
-      </form>
-    </Modal>
+          </DialogDescription>
+        </DialogHeader>
+
+        <Tabs value={mode} onValueChange={(value) => setMode(value as 'login' | 'signup')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="login">Login</TabsTrigger>
+            <TabsTrigger value="signup">Cadastrar</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="signup">
+            <form onSubmit={handleSignup} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="signup-name">Nome Completo</Label>
+                  <Input
+                    id="signup-name"
+                    type="text"
+                    placeholder="Seu nome completo"
+                    value={signupData.fullName}
+                    onChange={(e) => setSignupData({...signupData, fullName: e.target.value})}
+                    className={errors.fullName ? 'border-destructive' : ''}
+                  />
+                  {errors.fullName && <p className="text-sm text-destructive mt-1">{errors.fullName}</p>}
+                </div>
+                
+                <div>
+                  <Label htmlFor="signup-email">E-mail</Label>
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={signupData.email}
+                    onChange={(e) => setSignupData({...signupData, email: e.target.value})}
+                    className={errors.email ? 'border-destructive' : ''}
+                  />
+                  {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-role">Tipo de Conta</Label>
+                  <Select 
+                    value={signupData.role} 
+                    onValueChange={(value: 'admin' | 'client') => setSignupData({...signupData, role: value})}
+                  >
+                    <SelectTrigger className={errors.role ? 'border-destructive' : ''}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border z-50">
+                      <SelectItem value="client">
+                        <div className="flex items-center space-x-2">
+                          <Users className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Cliente</div>
+                            <div className="text-xs text-muted-foreground">Acesso aos recursos de desenvolvimento profissional</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="admin">
+                        <div className="flex items-center space-x-2">
+                          <Shield className="h-4 w-4" />
+                          <div>
+                            <div className="font-medium">Administrador</div>
+                            <div className="text-xs text-muted-foreground">Acesso completo à plataforma e gerenciamento</div>
+                          </div>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.role && <p className="text-sm text-destructive mt-1">{errors.role}</p>}
+                </div>
+                
+                <div>
+                  <Label htmlFor="signup-password">Senha</Label>
+                  <Input
+                    id="signup-password"
+                    type="password"
+                    placeholder="Sua senha"
+                    value={signupData.password}
+                    onChange={(e) => setSignupData({...signupData, password: e.target.value})}
+                    className={errors.password ? 'border-destructive' : ''}
+                  />
+                  {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
+                </div>
+                
+                <div>
+                  <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+                  <Input
+                    id="signup-confirm-password"
+                    type="password"
+                    placeholder="Confirme sua senha"
+                    value={signupData.confirmPassword}
+                    onChange={(e) => setSignupData({...signupData, confirmPassword: e.target.value})}
+                    className={errors.confirmPassword ? 'border-destructive' : ''}
+                  />
+                  {errors.confirmPassword && <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>}
+                </div>
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                ) : (
+                  'Criar Conta'
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="login">
+            <form onSubmit={handleLogin} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="login-email">E-mail</Label>
+                  <Input
+                    id="login-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    value={loginData.email}
+                    onChange={(e) => setLoginData({...loginData, email: e.target.value})}
+                    className={errors.email ? 'border-destructive' : ''}
+                  />
+                  {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+                </div>
+                
+                <div>
+                  <Label htmlFor="login-password">Senha</Label>
+                  <Input
+                    id="login-password"
+                    type="password"
+                    placeholder="Sua senha"
+                    value={loginData.password}
+                    onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+                    className={errors.password ? 'border-destructive' : ''}
+                  />
+                  {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
+                </div>
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-primary hover:opacity-90 transition-all duration-300"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                ) : (
+                  'Entrar'
+                )}
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 };
 
