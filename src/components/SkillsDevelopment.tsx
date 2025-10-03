@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TrendingUp, Star, Plus, BookOpen, Award, Target, Play } from 'lucide-react';
+import { TrendingUp, Star, Plus, BookOpen, Award, Target, Play, Zap, Trophy, Flame } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface Skill {
@@ -170,15 +170,38 @@ const SkillsDevelopment = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+      {/* Header with Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="md:col-span-2">
+          <h2 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
             Desenvolvimento de Habilidades
           </h2>
           <p className="text-muted-foreground">
             Identifique e desenvolva as habilidades mais demandadas
           </p>
         </div>
+        <Card className="border-primary/20 bg-gradient-to-br from-orange-500/10 to-orange-600/5 animate-fade-in">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Sequência</p>
+              <h3 className="text-2xl font-bold text-primary flex items-center space-x-1">
+                <Flame className="h-5 w-5 text-orange-500" />
+                <span>7 dias</span>
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-primary/20 bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <CardContent className="p-4 flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Pontos XP</p>
+              <h3 className="text-2xl font-bold text-primary flex items-center space-x-1">
+                <Trophy className="h-5 w-5 text-yellow-500" />
+                <span>1,240</span>
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs defaultValue="skills" className="space-y-6">
@@ -190,6 +213,38 @@ const SkillsDevelopment = () => {
         </TabsList>
 
         <TabsContent value="skills" className="space-y-6">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <Card className="border-primary/20 hover-scale cursor-pointer">
+              <CardContent className="p-3 text-center">
+                <Zap className="h-5 w-5 text-primary mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-lg font-bold">{skills.length}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 hover-scale cursor-pointer">
+              <CardContent className="p-3 text-center">
+                <Target className="h-5 w-5 text-green-500 mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Dominadas</p>
+                <p className="text-lg font-bold">{skills.filter(s => s.level >= s.target).length}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 hover-scale cursor-pointer">
+              <CardContent className="p-3 text-center">
+                <TrendingUp className="h-5 w-5 text-blue-500 mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Em Progresso</p>
+                <p className="text-lg font-bold">{skills.filter(s => s.level < s.target && s.level > 0).length}</p>
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 hover-scale cursor-pointer">
+              <CardContent className="p-3 text-center">
+                <BookOpen className="h-5 w-5 text-purple-500 mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">Categorias</p>
+                <p className="text-lg font-bold">{categories.length}</p>
+              </CardContent>
+            </Card>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {skills.map((skill) => (
               <Card key={skill.id} className="border-primary/20">
