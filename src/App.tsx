@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -20,6 +21,7 @@ const App = () => {
         {/* Public routes */}
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/demo" element={<Demo />} />
         
         {/* Protected routes */}
         <Route path="/dashboard" element={

@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Brain, Menu, X, Languages } from "lucide-react";
+import { Brain, Menu, X, Languages, Globe } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import UserProfile from "@/components/UserProfile";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +17,22 @@ const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [language, setLanguage] = useState<'pt' | 'en'>('pt');
+  const { language, setLanguage, t } = useLanguage();
+
+  const languages = [
+    { code: 'pt', label: '🇧🇷 Português', flag: '🇧🇷' },
+    { code: 'en', label: '🇺🇸 English', flag: '🇺🇸' },
+    { code: 'es', label: '🇪🇸 Español', flag: '🇪🇸' },
+    { code: 'fr', label: '🇫🇷 Français', flag: '🇫🇷' },
+    { code: 'de', label: '🇩🇪 Deutsch', flag: '🇩🇪' },
+    { code: 'it', label: '🇮🇹 Italiano', flag: '🇮🇹' },
+    { code: 'zh', label: '🇨🇳 中文', flag: '🇨🇳' },
+    { code: 'ja', label: '🇯🇵 日本語', flag: '🇯🇵' },
+    { code: 'ko', label: '🇰🇷 한국어', flag: '🇰🇷' },
+    { code: 'ru', label: '🇷🇺 Русский', flag: '🇷🇺' },
+    { code: 'ar', label: '🇸🇦 العربية', flag: '🇸🇦' },
+    { code: 'hi', label: '🇮🇳 हिन्दी', flag: '🇮🇳' },
+  ] as const;
 
   const handleAuthClick = (mode: 'login' | 'signup') => {
     navigate('/auth', { state: { mode } });
@@ -49,19 +65,19 @@ const Header = () => {
                 href="#recursos" 
                 className="relative text-foreground hover:text-primary transition-all duration-300 after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
               >
-                Recursos
+                {t('nav.features')}
               </a>
               <a 
                 href="#sobre" 
                 className="relative text-foreground hover:text-primary transition-all duration-300 after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
               >
-                Sobre
+                {t('nav.about')}
               </a>
               <a 
                 href="#contato" 
                 className="relative text-foreground hover:text-primary transition-all duration-300 after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left"
               >
-                Contato
+                {t('nav.contact')}
               </a>
             </nav>
 
@@ -70,16 +86,19 @@ const Header = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className="hover-scale">
-                    <Languages className="h-5 w-5" />
+                    <Globe className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setLanguage('pt')} className={language === 'pt' ? 'bg-primary/10' : ''}>
-                    🇧🇷 Português
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLanguage('en')} className={language === 'en' ? 'bg-primary/10' : ''}>
-                    🇺🇸 English
-                  </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="max-h-[400px] overflow-y-auto">
+                  {languages.map((lang) => (
+                    <DropdownMenuItem 
+                      key={lang.code}
+                      onClick={() => setLanguage(lang.code as any)} 
+                      className={language === lang.code ? 'bg-primary/10' : ''}
+                    >
+                      {lang.label}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
               <ThemeToggle />
@@ -92,13 +111,13 @@ const Header = () => {
                     className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 transform hover:scale-105"
                     onClick={() => handleAuthClick('login')}
                   >
-                    Login
+                    {t('auth.login')}
                   </Button>
                   <Button 
                     className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300 transform hover:scale-105 hover:shadow-glow"
                     onClick={() => handleAuthClick('signup')}
                   >
-                    Cadastrar
+                    {t('auth.signup')}
                   </Button>
                 </>
               )}
@@ -121,19 +140,19 @@ const Header = () => {
                   href="#recursos" 
                   className="text-foreground hover:text-primary transition-all duration-300 py-2 hover:translate-x-2"
                 >
-                  Recursos
+                  {t('nav.features')}
                 </a>
                 <a 
                   href="#sobre" 
                   className="text-foreground hover:text-primary transition-all duration-300 py-2 hover:translate-x-2"
                 >
-                  Sobre
+                  {t('nav.about')}
                 </a>
                 <a 
                   href="#contato" 
                   className="text-foreground hover:text-primary transition-all duration-300 py-2 hover:translate-x-2"
                 >
-                  Contato
+                  {t('nav.contact')}
                 </a>
                 <div className="flex flex-col space-y-2 pt-4">
                   <ThemeToggle />
@@ -144,13 +163,13 @@ const Header = () => {
                         className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                         onClick={() => navigate('/dashboard')}
                       >
-                        Dashboard
+                        {t('nav.dashboard')}
                       </Button>
                       <Button 
                         variant="outline"
                         onClick={handleMobileLogout}
                       >
-                        Sair
+                        {t('auth.logout')}
                       </Button>
                     </>
                   ) : (
@@ -160,13 +179,13 @@ const Header = () => {
                         className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                         onClick={() => handleAuthClick('login')}
                       >
-                        Login
+                        {t('auth.login')}
                       </Button>
                       <Button 
                         className="bg-gradient-primary hover:opacity-90 shadow-nexus transition-all duration-300"
                         onClick={() => handleAuthClick('signup')}
                       >
-                        Cadastrar
+                        {t('auth.signup')}
                       </Button>
                     </>
                   )}
