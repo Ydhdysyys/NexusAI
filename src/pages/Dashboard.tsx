@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Brain, User, BookOpen, Target, TrendingUp, LogOut, ArrowLeft, Home, Settings as SettingsIcon, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ResumeBuilder from '@/components/ResumeBuilder';
 import InterviewPrep from '@/components/InterviewPrep';
 import SkillsDevelopment from '@/components/SkillsDevelopment';
@@ -26,6 +27,7 @@ const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<'home' | 'resume' | 'interview' | 'skills'>('home');
@@ -82,10 +84,10 @@ const Dashboard = () => {
           <Sparkles className="h-8 w-8 text-primary animate-pulse" />
         </div>
         <h1 className="text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          Bem-vindo ao NexusAI
+          {t('dashboard.welcome')}
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Sua jornada profissional personalizada começa agora com inteligência artificial
+          {user?.email?.split('@')[0] || ''}
         </p>
         <div className="flex items-center justify-center space-x-2 pt-2">
           <Button
@@ -189,12 +191,12 @@ const Dashboard = () => {
               <BookOpen className="h-6 w-6 text-white" />
             </div>
             <CardTitle className="text-xl">
-              Currículo Inteligente
+              {t('dashboard.resume')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Crie e otimize seu currículo com IA personalizada para sua área
+              {t('dashboard.resumeDesc')}
             </p>
           </CardContent>
         </Card>
@@ -209,12 +211,12 @@ const Dashboard = () => {
               <Target className="h-6 w-6 text-white" />
             </div>
             <CardTitle className="text-xl">
-              Preparação para Entrevistas
+              {t('dashboard.interview')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Treine com simulações de entrevistas personalizadas
+              {t('dashboard.interviewDesc')}
             </p>
           </CardContent>
         </Card>
@@ -229,12 +231,12 @@ const Dashboard = () => {
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <CardTitle className="text-xl">
-              Desenvolvimento de Habilidades
+              {t('dashboard.skills')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Identifique e desenvolva as habilidades mais demandadas
+              {t('dashboard.skillsDesc')}
             </p>
           </CardContent>
         </Card>
@@ -271,8 +273,8 @@ const Dashboard = () => {
                 onClick={() => navigate('/')}
                 className="flex items-center space-x-2 hover:bg-primary/10"
               >
-                <Home className="h-4 w-4" />
-                <span>Início</span>
+              <Home className="h-4 w-4" />
+                <span>{t('dashboard.backHome')}</span>
               </Button>
             </div>
             
@@ -285,7 +287,7 @@ const Dashboard = () => {
                 className="flex items-center space-x-2"
               >
                 <LogOut className="h-4 w-4" />
-                <span>Sair</span>
+                <span>{t('auth.logout')}</span>
               </Button>
             </div>
           </div>

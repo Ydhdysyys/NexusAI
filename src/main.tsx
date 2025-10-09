@@ -13,15 +13,15 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+      <BrowserRouter>
         <LanguageProvider>
-          <AuthProvider>
-            <BrowserRouter>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+            <AuthProvider>
               <App />
-            </BrowserRouter>
-          </AuthProvider>
+            </AuthProvider>
+          </ThemeProvider>
         </LanguageProvider>
-      </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>,
 );

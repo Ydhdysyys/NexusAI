@@ -10,60 +10,85 @@ const Demo = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [activeDemo, setActiveDemo] = useState<'resume' | 'interview' | 'skills'>('resume');
+  const [showVideo, setShowVideo] = useState(false);
 
   const demoFeatures = {
     resume: {
       icon: FileText,
-      title: "Otimização de Currículo",
-      description: "Veja como a IA analisa e melhora seu currículo em tempo real",
+      title: t('demo.resume.title'),
+      description: t('demo.resume.desc'),
       steps: [
-        "Upload do seu currículo atual",
-        "Análise automática de pontos fortes e fracos",
-        "Sugestões de melhorias baseadas em IA",
-        "Geração de currículo otimizado em PDF"
+        t('demo.resume.step1'),
+        t('demo.resume.step2'),
+        t('demo.resume.step3'),
+        t('demo.resume.step4')
       ],
       stats: [
-        { label: "Aumento médio na taxa de resposta", value: "78%" },
-        { label: "Tempo médio de otimização", value: "2 min" },
-        { label: "Currículos otimizados", value: "10k+" }
-      ]
+        { label: t('demo.resume.stat1'), value: "78%" },
+        { label: t('demo.resume.stat2'), value: "2 min" },
+        { label: t('demo.resume.stat3'), value: "10k+" }
+      ],
+      videoId: "dQw4w9WgXcQ" // Example YouTube video ID
     },
     interview: {
       icon: MessageSquare,
-      title: "Preparação para Entrevistas",
-      description: "Pratique com simulações realistas de entrevistas",
+      title: t('demo.interview.title'),
+      description: t('demo.interview.desc'),
       steps: [
-        "Escolha o tipo de vaga desejada",
-        "Receba perguntas personalizadas",
-        "Grave suas respostas em tempo real",
-        "Obtenha feedback detalhado da IA"
+        t('demo.interview.step1'),
+        t('demo.interview.step2'),
+        t('demo.interview.step3'),
+        t('demo.interview.step4')
       ],
       stats: [
-        { label: "Taxa de aprovação após treino", value: "85%" },
-        { label: "Perguntas disponíveis", value: "500+" },
-        { label: "Feedback personalizado", value: "100%" }
-      ]
+        { label: t('demo.interview.stat1'), value: "85%" },
+        { label: t('demo.interview.stat2'), value: "500+" },
+        { label: t('demo.interview.stat3'), value: "100%" }
+      ],
+      videoId: "ScMzIvxBSi4" // Example YouTube video ID
     },
     skills: {
       icon: TrendingUp,
-      title: "Desenvolvimento de Habilidades",
-      description: "Aprimore suas competências com trilhas personalizadas",
+      title: t('demo.skills.title'),
+      description: t('demo.skills.desc'),
       steps: [
-        "Avaliação inicial de competências",
-        "Trilha de aprendizado personalizada",
-        "Exercícios práticos e desafios",
-        "Certificados de conclusão"
+        t('demo.skills.step1'),
+        t('demo.skills.step2'),
+        t('demo.skills.step3'),
+        t('demo.skills.step4')
       ],
       stats: [
-        { label: "Habilidades disponíveis", value: "200+" },
-        { label: "Tempo médio de conclusão", value: "30 dias" },
-        { label: "Taxa de satisfação", value: "96%" }
-      ]
+        { label: t('demo.skills.stat1'), value: "200+" },
+        { label: t('demo.skills.stat2'), value: "30 dias" },
+        { label: t('demo.skills.stat3'), value: "96%" }
+      ],
+      videoId: "9bZkp7q19f0" // Example YouTube video ID
     }
   };
 
   const currentDemo = demoFeatures[activeDemo];
   const Icon = currentDemo.icon;
+
+  const testimonials = [
+    {
+      name: "Maria Silva",
+      role: "Desenvolvedora Front-end",
+      text: "O NexusAI me ajudou a otimizar meu currículo e consegui 3 entrevistas em uma semana!",
+      rating: 5
+    },
+    {
+      name: "João Santos",
+      role: "Designer UX/UI",
+      text: "As simulações de entrevista foram essenciais para minha aprovação. Recomendo muito!",
+      rating: 5
+    },
+    {
+      name: "Ana Costa",
+      role: "Analista de Dados",
+      text: "A trilha de desenvolvimento de habilidades me deu confiança para mudar de área.",
+      rating: 5
+    }
+  ];
 
   return (
     <PageTransition>
@@ -81,7 +106,7 @@ const Demo = () => {
                 {t('dashboard.backHome')}
               </Button>
               <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                NexusAI Demo
+                {t('demo.title')}
               </h1>
               <Button
                 onClick={() => navigate('/auth')}
@@ -98,12 +123,12 @@ const Demo = () => {
             {/* Hero Section */}
             <div className="text-center mb-12 animate-fade-in">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Explore o Poder da
-                <span className="bg-gradient-primary bg-clip-text text-transparent"> IA </span>
-                no seu desenvolvimento profissional
+                {t('demo.hero')}
+                <span className="bg-gradient-primary bg-clip-text text-transparent">{t('demo.heroHighlight')}</span>
+                {t('demo.heroEnd')}
               </h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Veja demonstrações interativas de como o NexusAI pode transformar sua carreira
+                {t('demo.heroDesc')}
               </p>
             </div>
 
@@ -142,16 +167,29 @@ const Demo = () => {
               {/* Demo Video/Preview */}
               <Card className="overflow-hidden animate-fade-in">
                 <CardContent className="p-0">
-                  <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-grid-white/10" />
-                    <Button
-                      size="lg"
-                      className="relative z-10 bg-gradient-primary hover:opacity-90 shadow-glow gap-2"
-                    >
-                      <Play className="h-5 w-5" />
-                      Assistir Demo
-                    </Button>
-                  </div>
+                  {showVideo ? (
+                    <div className="relative aspect-video">
+                      <iframe
+                        className="w-full h-full"
+                        src={`https://www.youtube.com/embed/${currentDemo.videoId}?autoplay=1`}
+                        title="Demo Video"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative aspect-video bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center cursor-pointer"
+                         onClick={() => setShowVideo(true)}>
+                      <div className="absolute inset-0 bg-grid-white/10" />
+                      <Button
+                        size="lg"
+                        className="relative z-10 bg-gradient-primary hover:opacity-90 shadow-glow gap-2"
+                      >
+                        <Play className="h-5 w-5" />
+                        {t('demo.watchDemo')}
+                      </Button>
+                    </div>
+                  )}
                   <div className="p-6">
                     <div className="flex items-start gap-4">
                       <div className="p-3 rounded-lg bg-gradient-primary">
@@ -169,8 +207,8 @@ const Demo = () => {
               {/* Demo Steps */}
               <Card className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
                 <CardHeader>
-                  <CardTitle>Como Funciona</CardTitle>
-                  <CardDescription>Passo a passo do processo</CardDescription>
+                  <CardTitle>{t('demo.howItWorks')}</CardTitle>
+                  <CardDescription>{t('demo.stepByStep')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -210,29 +248,10 @@ const Demo = () => {
             {/* Testimonials */}
             <div className="mb-12">
               <h3 className="text-3xl font-bold text-center mb-8">
-                O que nossos usuários dizem
+                {t('demo.testimonials')}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[
-                  {
-                    name: "Maria Silva",
-                    role: "Desenvolvedora Front-end",
-                    text: "O NexusAI me ajudou a otimizar meu currículo e consegui 3 entrevistas em uma semana!",
-                    rating: 5
-                  },
-                  {
-                    name: "João Santos",
-                    role: "Designer UX/UI",
-                    text: "As simulações de entrevista foram essenciais para minha aprovação. Recomendo muito!",
-                    rating: 5
-                  },
-                  {
-                    name: "Ana Costa",
-                    role: "Analista de Dados",
-                    text: "A trilha de desenvolvimento de habilidades me deu confiança para mudar de área.",
-                    rating: 5
-                  }
-                ].map((testimonial, index) => (
+                {testimonials.map((testimonial, index) => (
                   <Card
                     key={index}
                     className="animate-fade-in hover-scale"
@@ -266,10 +285,10 @@ const Demo = () => {
             <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
               <CardContent className="pt-6 text-center">
                 <h3 className="text-3xl font-bold mb-4">
-                  Pronto para transformar sua carreira?
+                  {t('demo.cta.title')}
                 </h3>
                 <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
-                  Junte-se a milhares de profissionais que já estão usando o NexusAI
+                  {t('demo.cta.desc')}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
@@ -278,7 +297,7 @@ const Demo = () => {
                     onClick={() => navigate('/auth')}
                   >
                     <CheckCircle className="mr-2 h-5 w-5" />
-                    Começar Gratuitamente
+                    {t('demo.cta.start')}
                   </Button>
                   <Button
                     size="lg"
@@ -287,7 +306,7 @@ const Demo = () => {
                     onClick={() => navigate('/')}
                   >
                     <Users className="mr-2 h-5 w-5" />
-                    Saber Mais
+                    {t('demo.cta.learn')}
                   </Button>
                 </div>
               </CardContent>
