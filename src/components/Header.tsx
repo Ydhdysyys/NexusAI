@@ -155,6 +155,25 @@ const Header = () => {
                   {t('nav.contact')}
                 </a>
                 <div className="flex flex-col space-y-2 pt-4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start">
+                        <Globe className="h-5 w-5 mr-2" />
+                        {languages.find(l => l.code === language)?.label || 'Language'}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto w-full">
+                      {languages.map((lang) => (
+                        <DropdownMenuItem 
+                          key={lang.code}
+                          onClick={() => setLanguage(lang.code as any)} 
+                          className={language === lang.code ? 'bg-primary/10' : ''}
+                        >
+                          {lang.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <ThemeToggle />
                   {user ? (
                     <>
