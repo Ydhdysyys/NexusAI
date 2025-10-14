@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Routes, Route } from "react-router-dom";
 
 import ProtectedRoute from "@/components/ProtectedRoute";
+import CookieConsent from "@/components/CookieConsent";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,7 @@ const App = () => {
 
   return (
     <TooltipProvider>
+      <CookieConsent />
       <Toaster />
       <Sonner />
       <Routes>

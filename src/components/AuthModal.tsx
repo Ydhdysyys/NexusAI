@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Brain, Mail, Lock, User, Shield, Users } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -33,8 +32,7 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    role: 'client' as 'admin' | 'client'
+    confirmPassword: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,8 +47,7 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
     fullName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
     email: z.string().email('E-mail inválido'),
     password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
-    confirmPassword: z.string(),
-    role: z.enum(['admin', 'client'])
+    confirmPassword: z.string()
   }).refine((data) => data.password === data.confirmPassword, {
     message: "Senhas não coincidem",
     path: ["confirmPassword"],
@@ -94,8 +91,7 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
       const { error } = await signUp(
         validatedData.email, 
         validatedData.password, 
-        validatedData.fullName,
-        validatedData.role
+        validatedData.fullName
       );
       
       if (!error) {
@@ -170,39 +166,6 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
                     className={errors.email ? 'border-destructive' : ''}
                   />
                   {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
-                </div>
-
-                <div>
-                  <Label htmlFor="signup-role">Tipo de Conta</Label>
-                  <Select 
-                    value={signupData.role} 
-                    onValueChange={(value: 'admin' | 'client') => setSignupData({...signupData, role: value})}
-                  >
-                    <SelectTrigger className={errors.role ? 'border-destructive' : ''}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border-border z-50">
-                      <SelectItem value="client">
-                        <div className="flex items-center space-x-2">
-                          <Users className="h-4 w-4" />
-                          <div>
-                            <div className="font-medium">Cliente</div>
-                            <div className="text-xs text-muted-foreground">Acesso aos recursos de desenvolvimento profissional</div>
-                          </div>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="admin">
-                        <div className="flex items-center space-x-2">
-                          <Shield className="h-4 w-4" />
-                          <div>
-                            <div className="font-medium">Administrador</div>
-                            <div className="text-xs text-muted-foreground">Acesso completo à plataforma e gerenciamento</div>
-                          </div>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.role && <p className="text-sm text-destructive mt-1">{errors.role}</p>}
                 </div>
                 
                 <div>
