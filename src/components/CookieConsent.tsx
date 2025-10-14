@@ -158,11 +158,11 @@ const CookieConsent = () => {
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-300">
-        <Card className="mx-auto max-w-4xl p-6 shadow-2xl bg-card border-border">
+        <Card className="mx-auto max-w-4xl p-6 shadow-2xl bg-card/95 backdrop-blur-sm border-border">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold mb-2">{t.title}</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-lg font-bold mb-2 text-foreground">{t.title}</h3>
+              <p className="text-sm text-foreground/80 font-medium">
                 {t.description}
               </p>
             </div>
@@ -170,7 +170,7 @@ const CookieConsent = () => {
               <Button
                 variant="outline"
                 onClick={handleRejectAll}
-                className="flex-1 md:flex-initial"
+                className="flex-1 md:flex-initial hover:bg-destructive hover:text-destructive-foreground"
               >
                 {t.rejectAll}
               </Button>
@@ -184,7 +184,7 @@ const CookieConsent = () => {
               </Button>
               <Button
                 onClick={handleAcceptAll}
-                className="flex-1 md:flex-initial bg-gradient-primary"
+                className="flex-1 md:flex-initial bg-nexus-purple hover:bg-nexus-purple-dark text-white font-semibold"
               >
                 {t.acceptAll}
               </Button>
@@ -257,7 +257,7 @@ const CookieConsent = () => {
             <Button variant="outline" onClick={() => setShowSettings(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSavePreferences} className="bg-gradient-primary">
+            <Button onClick={handleSavePreferences} className="bg-nexus-purple hover:bg-nexus-purple-dark text-white font-semibold">
               {t.save}
             </Button>
           </div>
