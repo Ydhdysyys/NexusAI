@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import ResumeBuilder from '@/components/ResumeBuilder';
 import InterviewPrep from '@/components/InterviewPrep';
 import SkillsDevelopment from '@/components/SkillsDevelopment';
+import JobSearch from '@/components/JobSearch';
 import ThemeToggle from '@/components/ThemeToggle';
 
 interface Profile {
@@ -30,7 +31,7 @@ const Dashboard = () => {
   const { t } = useLanguage();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<'home' | 'resume' | 'interview' | 'skills'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'resume' | 'interview' | 'skills' | 'jobs'>('home');
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -71,6 +72,8 @@ const Dashboard = () => {
         return <InterviewPrep />;
       case 'skills':
         return <SkillsDevelopment />;
+      case 'jobs':
+        return <JobSearch />;
       default:
         return renderHomeContent();
     }
@@ -181,7 +184,7 @@ const Dashboard = () => {
       </div>
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card 
           className="group border-primary/20 hover:border-primary/40 hover:shadow-glow transition-all duration-300 cursor-pointer animate-fade-in hover-scale bg-gradient-to-br from-card to-card/50"
           onClick={() => setActiveSection('resume')}
@@ -237,6 +240,26 @@ const Dashboard = () => {
           <CardContent>
             <p className="text-muted-foreground">
               {t('dashboard.skillsDesc')}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="group border-primary/20 hover:border-primary/40 hover:shadow-glow transition-all duration-300 cursor-pointer animate-fade-in hover-scale bg-gradient-to-br from-card to-card/50"
+          onClick={() => setActiveSection('jobs')}
+          style={{ animationDelay: '0.3s' }}
+        >
+          <CardHeader>
+            <div className="p-3 w-fit rounded-xl bg-gradient-primary mb-2 group-hover:scale-110 transition-transform">
+              <Brain className="h-6 w-6 text-white" />
+            </div>
+            <CardTitle className="text-xl">
+              Busca de Vagas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Encontre oportunidades reais no mercado brasileiro
             </p>
           </CardContent>
         </Card>

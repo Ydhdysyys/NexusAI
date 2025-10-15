@@ -1,1 +1,7 @@
 project_id = "bmtmyjxnixujqvoltzia"
+
+[functions.create-admin]
+verify_jwt = false
+
+[functions.job-search]
+verify_jwt = true
