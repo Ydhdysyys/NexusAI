@@ -13,6 +13,7 @@ import InterviewPrep from '@/components/InterviewPrep';
 import SkillsDevelopment from '@/components/SkillsDevelopment';
 import JobSearch from '@/components/JobSearch';
 import ThemeToggle from '@/components/ThemeToggle';
+import { AdminPanel } from '@/components/AdminPanel';
 
 interface Profile {
   id: string;
@@ -32,6 +33,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<'home' | 'resume' | 'interview' | 'skills' | 'jobs'>('home');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -60,6 +62,22 @@ const Dashboard = () => {
     fetchProfile();
   }, [user, toast]);
 
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      
+      setIsAdmin(data?.role === 'admin');
+    };
+    
+    checkAdminStatus();
+  }, [user]);
+
   const handleLogout = async () => {
     await signOut();
   };
@@ -81,6 +99,13 @@ const Dashboard = () => {
 
   const renderHomeContent = () => (
     <>
+      {/* Admin Panel */}
+      {isAdmin && (
+        <div className="mb-8 animate-fade-in">
+          <AdminPanel />
+        </div>
+      )}
+
       {/* Welcome Section */}
       <div className="text-center space-y-4 animate-fade-in relative">
         <div className="absolute -top-10 left-1/2 -translate-x-1/2">
