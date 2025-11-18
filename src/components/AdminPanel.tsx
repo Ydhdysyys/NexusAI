@@ -81,6 +81,14 @@ export const AdminPanel = () => {
         .delete()
         .eq('user_id', userId);
 
+      // Audit log
+      await supabase.from('admin_audit_logs').insert({
+        actor_id: (await supabase.auth.getUser()).data.user?.id,
+        action: 'delete_user',
+        target_user_id: userId,
+        details: null
+      });
+
       toast({
         title: 'Sucesso',
         description: 'Usuário deletado',

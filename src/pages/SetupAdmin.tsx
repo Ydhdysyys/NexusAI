@@ -75,10 +75,20 @@ export default function SetupAdmin() {
       return;
     }
 
+    // Enforce corporate email domain
+    if (!formData.email.toLowerCase().endsWith('@nexuscareer.com')) {
+      toast({
+        title: 'Erro',
+        description: 'O e-mail do administrador deve ser @nexuscareer.com',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      // Create user account
+      // Criar usuário
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -92,19 +102,30 @@ export default function SetupAdmin() {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('Falha ao criar conta');
 
-      // Use secure function to create admin
+      // Criar admin de forma segura via função RPC
       const { error: adminError } = await supabase.rpc('create_first_admin', {
         admin_user_id: authData.user.id
       });
 
       if (adminError) throw adminError;
 
+      // Registrar auditoria
+      await supabase.from('admin_audit_logs').insert({
+        actor_id: authData.user.id,
+        action: 'create_admin',
+        target_user_id: authData.user.id,
+        details: {
+          email: formData.email,
+          full_name: formData.fullName
+        }
+      });
+
       toast({
         title: 'Sucesso!',
         description: 'Conta de administrador criada'
       });
 
-      // Auto login
+      // Fazer login automaticamente
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
@@ -116,9 +137,9 @@ export default function SetupAdmin() {
     } catch (error: any) {
       toast({
         title: 'Erro',
-        description: error.message === 'Admin already exists' 
-          ? 'Já existe um administrador cadastrado' 
-          : 'Não foi possível criar a conta',
+        description: error.message === 'Admin already exists'
+          ? 'Já existe um administrador cadastrado'
+          : 'Não foi possível criar a conta de administrador',
         variant: 'destructive'
       });
     } finally {
