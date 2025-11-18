@@ -24,7 +24,6 @@ export type Database = {
           experience_level: string | null
           full_name: string
           id: string
-          role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string
           user_id: string
         }
@@ -37,7 +36,6 @@ export type Database = {
           experience_level?: string | null
           full_name: string
           id?: string
-          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id: string
         }
@@ -50,7 +48,6 @@ export type Database = {
           experience_level?: string | null
           full_name?: string
           id?: string
-          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string
           user_id?: string
         }
@@ -85,6 +82,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_first_admin: { Args: { admin_user_id: string }; Returns: boolean }
       get_user_role: {
         Args: { user_uuid: string }
         Returns: Database["public"]["Enums"]["user_role"]

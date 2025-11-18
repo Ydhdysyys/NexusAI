@@ -32,18 +32,32 @@ export const AdminPanel = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data: profiles, error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, email, full_name, role, created_at')
+        .select(`
+          user_id, 
+          email, 
+          full_name, 
+          created_at,
+          user_roles!inner(role)
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers(profiles || []);
+      
+      const transformedData = data?.map(user => ({
+        user_id: user.user_id,
+        email: user.email,
+        full_name: user.full_name,
+        created_at: user.created_at,
+        role: (user.user_roles as any).role
+      })) || [];
+      
+      setUsers(transformedData);
     } catch (error) {
-      console.error('Erro ao buscar usuários:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar a lista de usuários',
+        description: 'Não foi possível carregar usuários',
         variant: 'destructive',
       });
     } finally {
@@ -57,30 +71,23 @@ export const AdminPanel = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // Deletar de user_roles
-      const { error: rolesError } = await supabase
+      await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId);
 
-      if (rolesError) throw rolesError;
-
-      // Deletar de profiles
-      const { error: profileError } = await supabase
+      await supabase
         .from('profiles')
         .delete()
         .eq('user_id', userId);
 
-      if (profileError) throw profileError;
-
       toast({
         title: 'Sucesso',
-        description: 'Usuário deletado com sucesso',
+        description: 'Usuário deletado',
       });
 
       fetchUsers();
     } catch (error) {
-      console.error('Erro ao deletar usuário:', error);
       toast({
         title: 'Erro',
         description: 'Não foi possível deletar o usuário',

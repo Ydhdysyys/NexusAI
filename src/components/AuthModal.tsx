@@ -44,9 +44,14 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
   });
 
   const signupSchema = z.object({
-    fullName: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-    email: z.string().email('E-mail inválido'),
-    password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+    fullName: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100, 'Nome muito longo'),
+    email: z.string().trim().email('E-mail inválido').max(255, 'Email muito longo'),
+    password: z.string()
+      .min(8, 'Senha deve ter pelo menos 8 caracteres')
+      .max(128, 'Senha muito longa')
+      .regex(/[A-Z]/, 'Deve conter letra maiúscula')
+      .regex(/[a-z]/, 'Deve conter letra minúscula')
+      .regex(/[0-9]/, 'Deve conter número'),
     confirmPassword: z.string()
   }).refine((data) => data.password === data.confirmPassword, {
     message: "Senhas não coincidem",

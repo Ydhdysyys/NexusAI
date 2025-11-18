@@ -12,7 +12,6 @@ interface Profile {
   bio?: string;
   career_field?: string;
   experience_level?: string;
-  role?: 'admin' | 'client';
   created_at: string;
   updated_at: string;
 }
