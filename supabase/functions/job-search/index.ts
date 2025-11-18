@@ -5,17 +5,55 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Simple in-memory rate limiting per IP (best-effort)
+const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
+const MAX_REQUESTS_PER_MINUTE = 10;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  const ip = req.headers.get('x-forwarded-for') ?? 'unknown';
+  const now = Date.now();
+  const windowMs = 60_000;
+  const entry = rateLimitMap.get(ip) || { count: 0, windowStart: now };
+
+  if (now - entry.windowStart > windowMs) {
+    entry.count = 0;
+    entry.windowStart = now;
+  }
+
+  entry.count += 1;
+  rateLimitMap.set(ip, entry);
+
+  if (entry.count > MAX_REQUESTS_PER_MINUTE) {
+    return new Response(
+      JSON.stringify({ error: 'Muitas requisições. Tente novamente em instantes.' }),
+      { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
   try {
     const { searchTerm, location = 'Brasil' } = await req.json()
-    
-    if (!searchTerm) {
+
+    if (!searchTerm || typeof searchTerm !== 'string') {
       return new Response(
         JSON.stringify({ error: 'Termo de busca é obrigatório' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (searchTerm.length < 2 || searchTerm.length > 100) {
+      return new Response(
+        JSON.stringify({ error: 'Termo de busca deve ter entre 2 e 100 caracteres' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (location && (typeof location !== 'string' || location.length > 100)) {
+      return new Response(
+        JSON.stringify({ error: 'Localização inválida' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
