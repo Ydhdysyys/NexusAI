@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,15 +7,22 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Brain, ArrowLeft, User, Bell, Shield, Palette, Save, Mail, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Brain, ArrowLeft, User, Bell, Shield, Palette, Save, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import ThemeToggle from '@/components/ThemeToggle';
+import { TwoFactorSetup } from '@/components/TwoFactorSetup';
+import { supabase } from '@/integrations/supabase/client';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [mfaEnabled, setMfaEnabled] = useState(false);
+  const [loading2FA, setLoading2FA] = useState(true);
+  const [showSetup2FA, setShowSetup2FA] = useState(false);
   
   const [profile, setProfile] = useState({
     fullName: user?.email?.split('@')[0] || '',
@@ -58,6 +65,44 @@ const Settings = () => {
     });
   };
 
+  useEffect(() => {
+    const check2FA = async () => {
+      try {
+        const { data } = await supabase.auth.mfa.listFactors();
+        setMfaEnabled(data?.totp && data.totp.length > 0 || false);
+      } catch (error) {
+        console.error('[SETTINGS] Failed to check 2FA status');
+      } finally {
+        setLoading2FA(false);
+      }
+    };
+    check2FA();
+  }, []);
+
+  const handleDisable2FA = async () => {
+    try {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totpFactor = factors?.totp?.[0];
+      
+      if (totpFactor) {
+        const { error } = await supabase.auth.mfa.unenroll({ factorId: totpFactor.id });
+        if (error) throw error;
+        
+        setMfaEnabled(false);
+        toast({
+          title: '2FA Desativado',
+          description: 'Autenticação em dois fatores foi desativada',
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Erro',
+        description: 'Falha ao desativar 2FA',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -93,10 +138,14 @@ const Settings = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile" className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">Perfil</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex items-center space-x-2">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Segurança</span>
               </TabsTrigger>
               <TabsTrigger value="notifications" className="flex items-center space-x-2">
                 <Bell className="h-4 w-4" />
@@ -185,6 +234,87 @@ const Settings = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Security Tab */}
+            <TabsContent value="security">
+              {showSetup2FA ? (
+                <TwoFactorSetup 
+                  onComplete={() => {
+                    setShowSetup2FA(false);
+                    setMfaEnabled(true);
+                  }}
+                  onSkip={() => setShowSetup2FA(false)}
+                />
+              ) : (
+                <Card className="border-primary/20 shadow-nexus animate-fade-in">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <ShieldCheck className="h-5 w-5 text-primary" />
+                      <span>Segurança da Conta</span>
+                    </CardTitle>
+                    <CardDescription>
+                      Gerencie suas configurações de segurança e autenticação
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertDescription>
+                        A autenticação em dois fatores (2FA) adiciona uma camada extra de segurança à sua conta
+                      </AlertDescription>
+                    </Alert>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 transition-all">
+                        <div className="space-y-1">
+                          <Label className="text-base font-semibold">Autenticação em Dois Fatores</Label>
+                          <p className="text-sm text-muted-foreground">
+                            {mfaEnabled 
+                              ? 'Protegendo sua conta com código TOTP' 
+                              : 'Adicione uma camada extra de segurança'}
+                          </p>
+                          {mfaEnabled && (
+                            <Badge className="mt-2 bg-green-500/10 text-green-600 hover:bg-green-500/20">
+                              Ativado
+                            </Badge>
+                          )}
+                        </div>
+                        {!loading2FA && (
+                          mfaEnabled ? (
+                            <Button 
+                              variant="outline" 
+                              onClick={handleDisable2FA}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              Desativar
+                            </Button>
+                          ) : (
+                            <Button onClick={() => setShowSetup2FA(true)}>
+                              Ativar 2FA
+                            </Button>
+                          )
+                        )}
+                      </div>
+
+                      <Separator />
+
+                      <div className="space-y-2">
+                        <Label className="flex items-center space-x-2">
+                          <Lock className="h-4 w-4" />
+                          <span>Alterar Senha</span>
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Mantenha sua senha forte e segura
+                        </p>
+                        <Button variant="outline" className="w-full sm:w-auto mt-2">
+                          Alterar Senha
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* Notifications Tab */}

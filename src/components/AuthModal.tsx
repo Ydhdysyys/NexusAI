@@ -8,6 +8,8 @@ import { Brain } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
+import { TwoFactorVerify } from './TwoFactorVerify';
 
 interface AuthModalProps {
   open: boolean;
@@ -17,9 +19,10 @@ interface AuthModalProps {
 
 const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModalProps) => {
   const navigate = useNavigate();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signOut } = useAuth();
   const [mode, setMode] = useState<'login' | 'signup'>(initialMode);
   const [loading, setLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
   
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -68,8 +71,17 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
       const { error } = await signIn(validatedData.email, validatedData.password);
       
       if (!error) {
-        onOpenChange(false);
-        navigate('/dashboard');
+        // Check if user has 2FA enabled
+        const { data: factors } = await supabase.auth.mfa.listFactors();
+        
+        if (factors?.totp && factors.totp.length > 0) {
+          // User has 2FA enabled, show verification
+          setShow2FA(true);
+        } else {
+          // No 2FA, proceed to dashboard
+          onOpenChange(false);
+          navigate('/dashboard');
+        }
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -117,6 +129,29 @@ const AuthModal = ({ open, onOpenChange, mode: initialMode = 'login' }: AuthModa
       setLoading(false);
     }
   };
+
+  if (show2FA) {
+    return (
+      <Dialog open={open} onOpenChange={() => {
+        setShow2FA(false);
+        onOpenChange(false);
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <TwoFactorVerify
+            onSuccess={() => {
+              setShow2FA(false);
+              onOpenChange(false);
+              navigate('/dashboard');
+            }}
+            onCancel={() => {
+              setShow2FA(false);
+              signOut();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

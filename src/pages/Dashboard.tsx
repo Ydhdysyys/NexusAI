@@ -14,6 +14,7 @@ import SkillsDevelopment from '@/components/SkillsDevelopment';
 import JobSearch from '@/components/JobSearch';
 import ThemeToggle from '@/components/ThemeToggle';
 import { AdminPanel } from '@/components/AdminPanel';
+import { TwoFactorPrompt } from '@/components/TwoFactorPrompt';
 
 interface Profile {
   id: string;
@@ -34,6 +35,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<'home' | 'resume' | 'interview' | 'skills' | 'jobs'>('home');
   const [isAdmin, setIsAdmin] = useState(false);
+  const [show2FAPrompt, setShow2FAPrompt] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -74,7 +76,20 @@ const Dashboard = () => {
           .single();
 
         if (error) throw error;
-        setIsAdmin(data?.role === 'admin');
+        const adminStatus = data?.role === 'admin';
+        setIsAdmin(adminStatus);
+
+        // Check if admin has 2FA enabled
+        if (adminStatus) {
+          const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+          const has2FA = mfaFactors?.totp && mfaFactors.totp.length > 0;
+          
+          // Show prompt if admin doesn't have 2FA and hasn't dismissed it
+          if (!has2FA) {
+            const dismissed = localStorage.getItem('2fa_prompt_dismissed');
+            setShow2FAPrompt(!dismissed);
+          }
+        }
       } catch (error) {
         toast({
           title: 'Erro',
@@ -108,6 +123,19 @@ const Dashboard = () => {
 
   const renderHomeContent = () => (
     <>
+      {/* 2FA Prompt for Admins */}
+      {isAdmin && show2FAPrompt && (
+        <div className="mb-6 animate-fade-in">
+          <TwoFactorPrompt
+            onSetup={() => navigate('/settings?tab=security')}
+            onDismiss={() => {
+              localStorage.setItem('2fa_prompt_dismissed', 'true');
+              setShow2FAPrompt(false);
+            }}
+          />
+        </div>
+      )}
+
       {/* Admin Panel */}
       {isAdmin && (
         <div className="mb-8 animate-fade-in">
