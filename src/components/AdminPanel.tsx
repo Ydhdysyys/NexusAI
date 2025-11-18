@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Trash2, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { z } from 'zod';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,24 +71,49 @@ export const AdminPanel = () => {
   }, []);
 
   const handleDeleteUser = async (userId: string) => {
-    try {
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      await supabase
-        .from('profiles')
-        .delete()
-        .eq('user_id', userId);
-
-      // Audit log
-      await supabase.from('admin_audit_logs').insert({
-        actor_id: (await supabase.auth.getUser()).data.user?.id,
-        action: 'delete_user',
-        target_user_id: userId,
-        details: null
+    // Validate UUID format
+    const uuidSchema = z.string().uuid();
+    const validation = uuidSchema.safeParse(userId);
+    
+    if (!validation.success) {
+      toast({
+        title: 'Erro',
+        description: 'ID de usuário inválido',
+        variant: 'destructive',
       });
+      setDeleteUserId(null);
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: 'Erro',
+          description: 'Sessão expirada',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Call edge function to properly delete user (including auth.users)
+      const response = await fetch(
+        `https://bmtmyjxnixujqvoltzia.supabase.co/functions/v1/delete-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Falha ao deletar usuário');
+      }
 
       toast({
         title: 'Sucesso',
