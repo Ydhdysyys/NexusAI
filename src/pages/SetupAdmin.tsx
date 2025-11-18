@@ -7,6 +7,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Loader2 } from 'lucide-react';
+import { z } from 'zod';
+
+const setupAdminSchema = z.object({
+  fullName: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100, 'Nome muito longo'),
+  email: z.string().trim().email('Email inválido').max(255, 'Email muito longo'),
+  password: z.string()
+    .min(8, 'Senha deve ter pelo menos 8 caracteres')
+    .max(128, 'Senha muito longa')
+    .regex(/[A-Z]/, 'Senha deve conter letra maiúscula')
+    .regex(/[a-z]/, 'Senha deve conter letra minúscula')
+    .regex(/[0-9]/, 'Senha deve conter número'),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "As senhas não coincidem",
+  path: ["confirmPassword"],
+});
 
 export default function SetupAdmin() {
   const [loading, setLoading] = useState(true);
@@ -48,19 +64,12 @@ export default function SetupAdmin() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.password !== formData.confirmPassword) {
+    // Validate with Zod
+    const validation = setupAdminSchema.safeParse(formData);
+    if (!validation.success) {
       toast({
-        title: 'Erro',
-        description: 'As senhas não coincidem',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast({
-        title: 'Erro',
-        description: 'A senha deve ter pelo menos 6 caracteres',
+        title: 'Erro de validação',
+        description: validation.error.issues[0].message,
         variant: 'destructive'
       });
       return;
@@ -69,7 +78,7 @@ export default function SetupAdmin() {
     setSubmitting(true);
 
     try {
-      // Criar usuário
+      // Create user account
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -81,30 +90,21 @@ export default function SetupAdmin() {
       });
 
       if (signUpError) throw signUpError;
-      if (!authData.user) throw new Error('Usuário não foi criado');
+      if (!authData.user) throw new Error('Falha ao criar conta');
 
-      // Atualizar role para admin
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .update({ role: 'admin' })
-        .eq('user_id', authData.user.id);
+      // Use secure function to create admin
+      const { error: adminError } = await supabase.rpc('create_first_admin', {
+        admin_user_id: authData.user.id
+      });
 
-      if (roleError) throw roleError;
-
-      // Atualizar profile para admin
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ role: 'admin' })
-        .eq('user_id', authData.user.id);
-
-      if (profileError) throw profileError;
+      if (adminError) throw adminError;
 
       toast({
         title: 'Sucesso!',
-        description: 'Conta de administrador criada com sucesso'
+        description: 'Conta de administrador criada'
       });
 
-      // Fazer login automaticamente
+      // Auto login
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
@@ -114,10 +114,11 @@ export default function SetupAdmin() {
 
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Erro ao criar admin:', error);
       toast({
         title: 'Erro',
-        description: error.message || 'Não foi possível criar a conta de administrador',
+        description: error.message === 'Admin already exists' 
+          ? 'Já existe um administrador cadastrado' 
+          : 'Não foi possível criar a conta',
         variant: 'destructive'
       });
     } finally {

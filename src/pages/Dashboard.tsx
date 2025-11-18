@@ -66,17 +66,26 @@ const Dashboard = () => {
     const checkAdminStatus = async () => {
       if (!user) return;
       
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single();
-      
-      setIsAdmin(data?.role === 'admin');
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) throw error;
+        setIsAdmin(data?.role === 'admin');
+      } catch (error) {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao verificar permissões',
+          variant: 'destructive'
+        });
+      }
     };
-    
+
     checkAdminStatus();
-  }, [user]);
+  }, [user, toast]);
 
   const handleLogout = async () => {
     await signOut();
