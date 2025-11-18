@@ -55,7 +55,7 @@ export default function SetupAdmin() {
         setHasAdmin(true);
       }
     } catch (error) {
-      console.error('Erro ao verificar admin:', error);
+      console.error('[SETUP_ADMIN] Failed to check existing admin');
     } finally {
       setLoading(false);
     }

@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       setProfile(data);
     } catch (error) {
-      console.error('Erro ao buscar perfil:', error);
+      console.error('[AUTH] Failed to fetch profile');
       setProfile(null);
     }
   };

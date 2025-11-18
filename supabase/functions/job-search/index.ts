@@ -68,7 +68,7 @@ serve(async (req) => {
       const linkedinJobs = await searchLinkedInJobs(searchTerm, location)
       jobs.push(...linkedinJobs)
     } catch (error) {
-      console.error('Erro ao buscar no LinkedIn:', error)
+      console.error('[JOB_SEARCH] LinkedIn source failed')
     }
 
     // Fonte 2: Catho (scraping simulado)
@@ -76,7 +76,7 @@ serve(async (req) => {
       const cathoJobs = await searchCathoJobs(searchTerm, location)
       jobs.push(...cathoJobs)
     } catch (error) {
-      console.error('Erro ao buscar no Catho:', error)
+      console.error('[JOB_SEARCH] Catho source failed')
     }
 
     // Fonte 3: Vagas.com (scraping simulado)
@@ -84,7 +84,7 @@ serve(async (req) => {
       const vagasComJobs = await searchVagasComJobs(searchTerm, location)
       jobs.push(...vagasComJobs)
     } catch (error) {
-      console.error('Erro ao buscar no Vagas.com:', error)
+      console.error('[JOB_SEARCH] Vagas.com source failed')
     }
 
     // Usar AI para enriquecer e filtrar resultados
