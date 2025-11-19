@@ -53,7 +53,7 @@ const Dashboard = () => {
       } catch (error: any) {
         toast({
           variant: "destructive",
-          title: "Erro ao carregar perfil",
+          title: t('dashboard.errorProfile'),
           description: error.message
         });
       } finally {
@@ -92,8 +92,8 @@ const Dashboard = () => {
         }
       } catch (error) {
         toast({
-          title: 'Erro',
-          description: 'Erro ao verificar permissões',
+          title: t('dashboard.errorPermissions'),
+          description: t('dashboard.errorPermissions'),
           variant: 'destructive'
         });
       }
@@ -162,7 +162,7 @@ const Dashboard = () => {
             className="flex items-center space-x-2 hover-scale"
           >
             <SettingsIcon className="h-4 w-4" />
-            <span>Configurações</span>
+            <span>{t('dashboard.settings')}</span>
           </Button>
         </div>
       </div>
@@ -316,12 +316,12 @@ const Dashboard = () => {
               <Brain className="h-6 w-6 text-white" />
             </div>
             <CardTitle className="text-xl">
-              Busca de Vagas
+              {t('dashboard.jobs')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Encontre oportunidades reais no mercado brasileiro
+              {t('dashboard.jobsDesc')}
             </p>
           </CardContent>
         </Card>
