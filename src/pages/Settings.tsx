@@ -15,11 +15,13 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { TwoFactorSetup } from '@/components/TwoFactorSetup';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Settings = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [mfaEnabled, setMfaEnabled] = useState(false);
   const [loading2FA, setLoading2FA] = useState(true);
   const [showSetup2FA, setShowSetup2FA] = useState(false);
@@ -46,22 +48,22 @@ const Settings = () => {
 
   const saveProfile = () => {
     toast({
-      title: "Perfil atualizado!",
-      description: "Suas informações foram salvas com sucesso."
+      title: t('settings.profileUpdated'),
+      description: t('settings.profileUpdateDesc')
     });
   };
 
   const saveNotifications = () => {
     toast({
-      title: "Preferências salvas!",
-      description: "Suas configurações de notificação foram atualizadas."
+      title: t('settings.notificationsSaved'),
+      description: t('settings.notificationsSavedDesc')
     });
   };
 
   const savePrivacy = () => {
     toast({
-      title: "Privacidade atualizada!",
-      description: "Suas configurações de privacidade foram salvas."
+      title: t('settings.privacyUpdated'),
+      description: t('settings.privacyUpdatedDesc')
     });
   };
 
@@ -90,14 +92,14 @@ const Settings = () => {
         
         setMfaEnabled(false);
         toast({
-          title: '2FA Desativado',
-          description: 'Autenticação em dois fatores foi desativada',
+          title: t('settings.2FADisabled'),
+          description: t('settings.2FADisabledDesc'),
         });
       }
     } catch (error: any) {
       toast({
-        title: 'Erro',
-        description: 'Falha ao desativar 2FA',
+        title: t('settings.error2FA'),
+        description: t('settings.error2FA'),
         variant: 'destructive',
       });
     }
@@ -141,23 +143,23 @@ const Settings = () => {
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile" className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
-                <span className="hidden sm:inline">Perfil</span>
+                <span className="hidden sm:inline">{t('settings.profile')}</span>
               </TabsTrigger>
               <TabsTrigger value="security" className="flex items-center space-x-2">
                 <ShieldCheck className="h-4 w-4" />
-                <span className="hidden sm:inline">Segurança</span>
+                <span className="hidden sm:inline">{t('settings.security')}</span>
               </TabsTrigger>
               <TabsTrigger value="notifications" className="flex items-center space-x-2">
                 <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline">Notificações</span>
+                <span className="hidden sm:inline">{t('settings.notifications')}</span>
               </TabsTrigger>
               <TabsTrigger value="privacy" className="flex items-center space-x-2">
                 <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline">Privacidade</span>
+                <span className="hidden sm:inline">{t('settings.privacy')}</span>
               </TabsTrigger>
               <TabsTrigger value="appearance" className="flex items-center space-x-2">
                 <Palette className="h-4 w-4" />
-                <span className="hidden sm:inline">Aparência</span>
+                <span className="hidden sm:inline">{t('settings.appearance')}</span>
               </TabsTrigger>
             </TabsList>
 

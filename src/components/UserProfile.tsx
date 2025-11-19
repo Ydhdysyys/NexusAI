@@ -4,10 +4,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { User, Settings, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const UserProfile = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleLogout = async () => {
     await signOut();
@@ -41,7 +43,7 @@ const UserProfile = () => {
               {profile.full_name}
             </span>
             <span className="text-xs text-muted-foreground truncate max-w-32">
-              {profile.career_field || 'Profissional'}
+              {profile.career_field || t('profile.professional')}
             </span>
           </div>
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -69,7 +71,7 @@ const UserProfile = () => {
             onClick={() => navigate('/dashboard')}
           >
             <User className="h-4 w-4 mr-2" />
-            Dashboard
+            {t('profile.dashboard')}
           </Button>
           <Button
             variant="ghost"
@@ -77,7 +79,7 @@ const UserProfile = () => {
             onClick={() => navigate('/dashboard')}
           >
             <Settings className="h-4 w-4 mr-2" />
-            Configurações
+            {t('profile.settings')}
           </Button>
           <div className="my-1 h-px bg-border" />
           <Button
@@ -86,7 +88,7 @@ const UserProfile = () => {
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4 mr-2" />
-            Sair
+            {t('profile.logout')}
           </Button>
         </div>
       </PopoverContent>

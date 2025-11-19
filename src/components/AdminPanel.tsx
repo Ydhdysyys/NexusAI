@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,7 @@ export const AdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const fetchUsers = async () => {
     try {
@@ -57,8 +59,8 @@ export const AdminPanel = () => {
       setUsers(transformedData);
     } catch (error) {
       toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar usuários',
+        title: t('admin.errorFetch'),
+        description: t('admin.errorFetch'),
         variant: 'destructive',
       });
     } finally {
@@ -77,7 +79,7 @@ export const AdminPanel = () => {
     
     if (!validation.success) {
       toast({
-        title: 'Erro',
+        title: t('admin.errorDelete'),
         description: 'ID de usuário inválido',
         variant: 'destructive',
       });
@@ -90,7 +92,7 @@ export const AdminPanel = () => {
       
       if (!session) {
         toast({
-          title: 'Erro',
+          title: t('admin.errorDelete'),
           description: 'Sessão expirada',
           variant: 'destructive',
         });
@@ -116,15 +118,15 @@ export const AdminPanel = () => {
       }
 
       toast({
-        title: 'Sucesso',
-        description: 'Usuário deletado',
+        title: t('admin.userDeleted'),
+        description: t('admin.userDeletedDesc'),
       });
 
       fetchUsers();
     } catch (error) {
       toast({
-        title: 'Erro',
-        description: 'Não foi possível deletar o usuário',
+        title: t('admin.errorDelete'),
+        description: t('admin.errorDelete'),
         variant: 'destructive',
       });
     } finally {
@@ -150,21 +152,21 @@ export const AdminPanel = () => {
         <CardHeader>
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
-            <CardTitle>Painel do Administrador</CardTitle>
+            <CardTitle>{t('admin.title')}</CardTitle>
           </div>
           <CardDescription>
-            Gerencie todos os usuários cadastrados no sistema
+            {t('admin.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Função</TableHead>
-                <TableHead>Cadastrado em</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{t('admin.name')}</TableHead>
+                <TableHead>{t('admin.email')}</TableHead>
+                <TableHead>{t('admin.role')}</TableHead>
+                <TableHead>{t('admin.createdAt')}</TableHead>
+                <TableHead className="text-right">{t('admin.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -180,7 +182,7 @@ export const AdminPanel = () => {
                           : 'bg-secondary/10 text-secondary-foreground'
                       }`}
                     >
-                      {user.role === 'admin' ? 'Administrador' : 'Cliente'}
+                      {user.role === 'admin' ? t('admin.admin') : t('admin.client')}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -207,18 +209,18 @@ export const AdminPanel = () => {
       <AlertDialog open={!!deleteUserId} onOpenChange={() => setDeleteUserId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogTitle>{t('admin.deleteUser')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja deletar este usuário? Esta ação não pode ser desfeita.
+              {t('admin.deleteConfirm')} {t('admin.deleteDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t('admin.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteUserId && handleDeleteUser(deleteUserId)}
               className="bg-destructive hover:bg-destructive/90"
             >
-              Deletar
+              {t('admin.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
