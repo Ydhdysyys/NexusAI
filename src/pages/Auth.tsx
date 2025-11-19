@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import AuthModal from '@/components/AuthModal';
+import { PasswordResetForm } from '@/components/PasswordResetForm';
 import { Brain, Globe } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +19,8 @@ const Auth = () => {
   const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'reset'>('login');
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
   const { language, setLanguage } = useLanguage();
 
   const languages = [
@@ -35,16 +38,37 @@ const Auth = () => {
     { code: 'hi', label: '🇮🇳 हिन्दी', flag: '🇮🇳' },
   ] as const;
 
-  // Set initial mode based on navigation state
+  // Check for password recovery flow
   useEffect(() => {
-    const state = location.state as { mode?: 'login' | 'signup' };
-    if (state?.mode) {
-      setAuthMode(state.mode);
-    }
-  }, [location.state]);
+    const checkPasswordRecovery = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const type = hashParams.get('type');
+      
+      if (type === 'recovery') {
+        setIsPasswordReset(true);
+      }
+    };
+    
+    checkPasswordRecovery();
+  }, []);
 
-  // Redirect to dashboard if already authenticated
-  if (user) {
+  // Set initial mode based on navigation state or URL params
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const modeParam = searchParams.get('mode');
+    
+    if (modeParam === 'reset') {
+      setAuthMode('reset');
+    } else {
+      const state = location.state as { mode?: 'login' | 'signup' };
+      if (state?.mode) {
+        setAuthMode(state.mode);
+      }
+    }
+  }, [location.state, location.search]);
+
+  // Redirect to dashboard if already authenticated (unless doing password reset)
+  if (user && !isPasswordReset) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -88,12 +112,16 @@ const Auth = () => {
           </p>
         </div>
 
-        {/* Auth Modal as Component */}
-        <AuthModal
-          open={true}
-          onOpenChange={() => navigate('/')} // Navigate back to homepage
-          mode={authMode}
-        />
+        {/* Show password reset form or auth modal */}
+        {isPasswordReset ? (
+          <PasswordResetForm />
+        ) : (
+          <AuthModal
+            open={true}
+            onOpenChange={() => navigate('/')}
+            mode={authMode}
+          />
+        )}
       </div>
     </div>
   );
