@@ -102,27 +102,49 @@ export default function SetupAdmin() {
       if (signUpError) throw signUpError;
       if (!authData.user) throw new Error('Falha ao criar conta');
 
+      // Wait for the database trigger to create profile and user_roles entries
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
       // Criar admin de forma segura via função RPC
       const { error: adminError } = await supabase.rpc('create_first_admin', {
         admin_user_id: authData.user.id
       });
 
-      if (adminError) throw adminError;
-
-      // Registrar auditoria
-      await supabase.from('admin_audit_logs').insert({
-        actor_id: authData.user.id,
-        action: 'create_admin',
-        target_user_id: authData.user.id,
-        details: {
-          email: formData.email,
-          full_name: formData.fullName
+      if (adminError) {
+        console.error('[SETUP_ADMIN] RPC error');
+        // If admin already exists, redirect to login
+        if (adminError.message.includes('Admin already exists')) {
+          toast({
+            variant: "destructive",
+            title: "Admin já existe",
+            description: "Já existe um administrador no sistema. Faça login."
+          });
+          // Sign out the newly created user
+          await supabase.auth.signOut();
+          navigate('/auth');
+          return;
         }
-      });
+        throw adminError;
+      }
+
+      // Registrar auditoria (non-critical)
+      try {
+        await supabase.from('admin_audit_logs').insert({
+          actor_id: authData.user.id,
+          action: 'create_admin',
+          target_user_id: authData.user.id,
+          details: {
+            email: formData.email,
+            full_name: formData.fullName
+          }
+        });
+      } catch (auditError) {
+        console.error('[SETUP_ADMIN] Audit log failed');
+      }
 
       toast({
         title: 'Sucesso!',
-        description: 'Conta de administrador criada'
+        description: 'Conta de administrador criada com sucesso'
       });
 
       // Fazer login automaticamente
