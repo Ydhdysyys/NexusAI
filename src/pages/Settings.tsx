@@ -16,6 +16,7 @@ import { TwoFactorSetup } from '@/components/TwoFactorSetup';
 import { supabase } from '@/integrations/supabase/client';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
+import ProfileCompletion from '@/components/ProfileCompletion';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -138,7 +139,9 @@ const Settings = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <ProfileCompletion />
+          
           <Tabs defaultValue="profile" className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="profile" className="flex items-center space-x-2">

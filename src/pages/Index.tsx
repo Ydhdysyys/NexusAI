@@ -6,14 +6,18 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import PageTransition from "@/components/PageTransition";
 import ThemeToggle from "@/components/ThemeToggle";
+import LanguageSelector from "@/components/LanguageSelector";
 
 const Index = () => {
   return (
     <PageTransition>
       <div className="min-h-screen bg-background">
-        {/* Fixed Theme Toggle for mobile */}
-        <div className="fixed top-4 right-4 z-50 md:hidden">
-          <ThemeToggle />
+        {/* Fixed Theme Toggle and Language Selector for mobile */}
+        <div className="fixed top-4 right-4 z-50 flex gap-2">
+          <LanguageSelector />
+          <div className="md:hidden">
+            <ThemeToggle />
+          </div>
         </div>
         <Header />
         <main>
