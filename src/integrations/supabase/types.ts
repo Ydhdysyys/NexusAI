@@ -51,6 +51,7 @@ export type Database = {
           experience_level: string | null
           full_name: string
           id: string
+          preferred_language: string | null
           updated_at: string
           user_id: string
         }
@@ -63,6 +64,7 @@ export type Database = {
           experience_level?: string | null
           full_name: string
           id?: string
+          preferred_language?: string | null
           updated_at?: string
           user_id: string
         }
@@ -75,6 +77,7 @@ export type Database = {
           experience_level?: string | null
           full_name?: string
           id?: string
+          preferred_language?: string | null
           updated_at?: string
           user_id?: string
         }
