@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 type Language = 'pt' | 'en' | 'es' | 'fr' | 'de' | 'it' | 'zh' | 'ja' | 'ko' | 'ru' | 'ar' | 'hi';
 
@@ -10,7 +11,7 @@ interface LanguageContextType {
 
 const translations: Record<Language, Record<string, string>> = {
   pt: {
-    // Header
+    // Navigation
     'nav.features': 'Recursos',
     'nav.about': 'Sobre',
     'nav.contact': 'Contato',
@@ -19,7 +20,7 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.logout': 'Sair',
     'nav.dashboard': 'Dashboard',
     
-    // Hero
+    // Hero Section
     'hero.badge': 'Orientação Profissional com IA',
     'hero.title': 'Sua jornada para o',
     'hero.titleHighlight': ' mercado de trabalho ',
@@ -30,6 +31,66 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.stat1': 'Jovens Orientados',
     'hero.stat2': 'Taxa de Sucesso',
     'hero.stat3': 'Suporte IA',
+    
+    // Features Section
+    'features.title': 'Recursos que',
+    'features.titleHighlight': ' Transformam',
+    'features.titleEnd': ' Carreiras',
+    'features.subtitle': 'Descubra como nossa inteligência artificial pode acelerar sua entrada no mercado de trabalho',
+    'features.resume.title': 'Otimização de Currículo',
+    'features.resume.desc': 'IA analisa e otimiza seu currículo para cada vaga específica, destacando suas melhores qualidades.',
+    'features.resume.action': 'Otimizar Currículo',
+    'features.interview.title': 'Preparação para Entrevistas',
+    'features.interview.desc': 'Simulações de entrevistas personalizadas com feedback inteligente para você se destacar.',
+    'features.interview.action': 'Treinar Entrevistas',
+    'features.jobs.title': 'Busca Inteligente de Vagas',
+    'features.jobs.desc': 'Encontre oportunidades perfeitas com base no seu perfil, experiência e objetivos profissionais.',
+    'features.jobs.action': 'Buscar Vagas',
+    'features.skills.title': 'Desenvolvimento de Habilidades',
+    'features.skills.desc': 'Identifique gaps de competências e receba um plano personalizado de capacitação.',
+    'features.skills.action': 'Desenvolver Skills',
+    'features.networking.title': 'Networking Estratégico',
+    'features.networking.desc': 'Conecte-se com profissionais da sua área e expanda sua rede de contatos.',
+    'features.networking.action': 'Fazer Networking',
+    'features.mentoring.title': 'Orientação Personalizada',
+    'features.mentoring.desc': 'Mentoria 24/7 com IA que entende seus objetivos e traça o melhor caminho profissional.',
+    'features.mentoring.action': 'Obter Orientação',
+    'features.cta': 'Experimentar Todos os Recursos',
+    
+    // About Section
+    'about.title': 'Por que escolher o',
+    'about.titleHighlight': ' NexusAI',
+    'about.subtitle': 'Desenvolvemos uma plataforma pensada especificamente para jovens brasileiros que estão dando os primeiros passos no mercado de trabalho.',
+    'about.data.title': 'Orientação Baseada em Dados',
+    'about.data.desc': 'Nossa IA analisa milhares de vagas e perfis profissionais para oferecer conselhos precisos e atualizados com o mercado.',
+    'about.focus.title': 'Foco no Primeiro Emprego',
+    'about.focus.desc': 'Entendemos os desafios únicos de quem está começando e adaptamos nossas estratégias para superar essas barreiras.',
+    'about.learning.title': 'Aprendizado Contínuo',
+    'about.learning.desc': 'Acompanhe as tendências do mercado e desenvolva as habilidades mais requisitadas pelos empregadores.',
+    'about.support.title': 'Suporte Humanizado',
+    'about.support.desc': 'Tecnologia avançada com toque humano. Nossa IA é treinada para ser empática e compreender suas necessidades individuais.',
+    'about.stat1': 'Currículos otimizados',
+    'about.stat2': 'Taxa de aprovação em processos',
+    'about.cta': 'Comece Sua Jornada Profissional',
+    
+    // Contact Section
+    'contact.title': 'Entre em',
+    'contact.titleHighlight': ' Contato',
+    'contact.subtitle': 'Tem alguma dúvida ou precisa de ajuda? Nossa equipe está pronta para te orientar!',
+    'contact.info': 'Fale Conosco',
+    'contact.email': 'E-mail',
+    'contact.phone': 'Telefone',
+    'contact.address': 'Endereço',
+    'contact.form.title': 'Envie uma Mensagem',
+    'contact.form.name': 'Nome',
+    'contact.form.namePlaceholder': 'Seu nome',
+    'contact.form.email': 'E-mail',
+    'contact.form.emailPlaceholder': 'seu@email.com',
+    'contact.form.subject': 'Assunto',
+    'contact.form.subjectPlaceholder': 'Como podemos te ajudar?',
+    'contact.form.message': 'Mensagem',
+    'contact.form.messagePlaceholder': 'Descreva sua dúvida ou sugestão...',
+    'contact.form.submit': 'Enviar Mensagem',
     
     // Dashboard
     'dashboard.title': 'Painel de Controle',
@@ -185,7 +246,6 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.signup': 'Sign Up',
     'auth.logout': 'Logout',
     'nav.dashboard': 'Dashboard',
-    
     'hero.badge': 'AI-Powered Career Guidance',
     'hero.title': 'Your journey to the',
     'hero.titleHighlight': ' job market ',
@@ -196,7 +256,60 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.stat1': 'Guided Youth',
     'hero.stat2': 'Success Rate',
     'hero.stat3': 'AI Support',
-    
+    'features.title': 'Resources that',
+    'features.titleHighlight': ' Transform',
+    'features.titleEnd': ' Careers',
+    'features.subtitle': 'Discover how our artificial intelligence can accelerate your entry into the job market',
+    'features.resume.title': 'Resume Optimization',
+    'features.resume.desc': 'AI analyzes and optimizes your resume for each specific job, highlighting your best qualities.',
+    'features.resume.action': 'Optimize Resume',
+    'features.interview.title': 'Interview Preparation',
+    'features.interview.desc': 'Personalized interview simulations with intelligent feedback to help you stand out.',
+    'features.interview.action': 'Train Interviews',
+    'features.jobs.title': 'Smart Job Search',
+    'features.jobs.desc': 'Find perfect opportunities based on your profile, experience and professional goals.',
+    'features.jobs.action': 'Search Jobs',
+    'features.skills.title': 'Skills Development',
+    'features.skills.desc': 'Identify skill gaps and receive a personalized training plan.',
+    'features.skills.action': 'Develop Skills',
+    'features.networking.title': 'Strategic Networking',
+    'features.networking.desc': 'Connect with professionals in your field and expand your network.',
+    'features.networking.action': 'Network',
+    'features.mentoring.title': 'Personalized Guidance',
+    'features.mentoring.desc': '24/7 AI mentorship that understands your goals and maps out the best professional path.',
+    'features.mentoring.action': 'Get Guidance',
+    'features.cta': 'Try All Features',
+    'about.title': 'Why choose',
+    'about.titleHighlight': ' NexusAI',
+    'about.subtitle': 'We developed a platform specifically designed for young Brazilians taking their first steps in the job market.',
+    'about.data.title': 'Data-Driven Guidance',
+    'about.data.desc': 'Our AI analyzes thousands of job postings and professional profiles to offer accurate and up-to-date advice.',
+    'about.focus.title': 'Focus on First Job',
+    'about.focus.desc': 'We understand the unique challenges of those starting out and adapt our strategies to overcome these barriers.',
+    'about.learning.title': 'Continuous Learning',
+    'about.learning.desc': 'Keep up with market trends and develop the most sought-after skills by employers.',
+    'about.support.title': 'Humanized Support',
+    'about.support.desc': 'Advanced technology with a human touch. Our AI is trained to be empathetic and understand your individual needs.',
+    'about.stat1': 'Optimized resumes',
+    'about.stat2': 'Approval rate in processes',
+    'about.cta': 'Start Your Professional Journey',
+    'contact.title': 'Get in',
+    'contact.titleHighlight': ' Touch',
+    'contact.subtitle': 'Have a question or need help? Our team is ready to guide you!',
+    'contact.info': 'Contact Us',
+    'contact.email': 'Email',
+    'contact.phone': 'Phone',
+    'contact.address': 'Address',
+    'contact.form.title': 'Send a Message',
+    'contact.form.name': 'Name',
+    'contact.form.namePlaceholder': 'Your name',
+    'contact.form.email': 'Email',
+    'contact.form.emailPlaceholder': 'your@email.com',
+    'contact.form.subject': 'Subject',
+    'contact.form.subjectPlaceholder': 'How can we help you?',
+    'contact.form.message': 'Message',
+    'contact.form.messagePlaceholder': 'Describe your question or suggestion...',
+    'contact.form.submit': 'Send Message',
     'dashboard.title': 'Dashboard',
     'dashboard.welcome': 'Welcome back',
     'dashboard.welcomeBack': 'Welcome back',
@@ -219,7 +332,6 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.recommendations': 'Recommendations for You',
     'dashboard.profileStrength': 'Profile Strength',
     'dashboard.aiInsights': 'AI Insights',
-    
     'settings.title': 'Settings',
     'settings.profile': 'Profile',
     'settings.notifications': 'Notifications',
@@ -270,12 +382,10 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.themeSettings': 'Theme Settings',
     'settings.currentTheme': 'Current Theme',
     'settings.themeToggle': 'Toggle Theme',
-    
     'profile.dashboard': 'Dashboard',
     'profile.settings': 'Settings',
     'profile.logout': 'Logout',
     'profile.professional': 'Professional',
-    
     'admin.title': 'Administration Panel',
     'admin.description': 'Manage users and permissions',
     'admin.allUsers': 'All Users',
@@ -296,7 +406,6 @@ const translations: Record<Language, Record<string, string>> = {
     'admin.errorFetch': 'Error loading users',
     'admin.admin': 'Admin',
     'admin.client': 'Client',
-    
     'demo.title': 'NexusAI Demo',
     'demo.hero': 'Explore the Power of',
     'demo.heroHighlight': ' AI ',
@@ -346,7 +455,6 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.signup': 'Registrarse',
     'auth.logout': 'Cerrar sesión',
     'nav.dashboard': 'Panel',
-    
     'hero.badge': 'Orientación Profesional con IA',
     'hero.title': 'Tu viaje hacia el',
     'hero.titleHighlight': ' mercado laboral ',
@@ -357,7 +465,60 @@ const translations: Record<Language, Record<string, string>> = {
     'hero.stat1': 'Jóvenes Orientados',
     'hero.stat2': 'Tasa de Éxito',
     'hero.stat3': 'Soporte IA',
-    
+    'features.title': 'Recursos que',
+    'features.titleHighlight': ' Transforman',
+    'features.titleEnd': ' Carreras',
+    'features.subtitle': 'Descubre cómo nuestra inteligencia artificial puede acelerar tu entrada al mercado laboral',
+    'features.resume.title': 'Optimización de Currículum',
+    'features.resume.desc': 'La IA analiza y optimiza tu currículum para cada vacante específica, destacando tus mejores cualidades.',
+    'features.resume.action': 'Optimizar Currículum',
+    'features.interview.title': 'Preparación para Entrevistas',
+    'features.interview.desc': 'Simulaciones de entrevistas personalizadas con retroalimentación inteligente para destacarte.',
+    'features.interview.action': 'Entrenar Entrevistas',
+    'features.jobs.title': 'Búsqueda Inteligente de Empleos',
+    'features.jobs.desc': 'Encuentra oportunidades perfectas basadas en tu perfil, experiencia y objetivos profesionales.',
+    'features.jobs.action': 'Buscar Empleos',
+    'features.skills.title': 'Desarrollo de Habilidades',
+    'features.skills.desc': 'Identifica brechas de competencias y recibe un plan personalizado de capacitación.',
+    'features.skills.action': 'Desarrollar Habilidades',
+    'features.networking.title': 'Networking Estratégico',
+    'features.networking.desc': 'Conecta con profesionales de tu área y expande tu red de contactos.',
+    'features.networking.action': 'Hacer Networking',
+    'features.mentoring.title': 'Orientación Personalizada',
+    'features.mentoring.desc': 'Mentoría 24/7 con IA que entiende tus objetivos y traza el mejor camino profesional.',
+    'features.mentoring.action': 'Obtener Orientación',
+    'features.cta': 'Probar Todas las Funciones',
+    'about.title': 'Por qué elegir',
+    'about.titleHighlight': ' NexusAI',
+    'about.subtitle': 'Desarrollamos una plataforma diseñada específicamente para jóvenes brasileños que están dando sus primeros pasos en el mercado laboral.',
+    'about.data.title': 'Orientación Basada en Datos',
+    'about.data.desc': 'Nuestra IA analiza miles de vacantes y perfiles profesionales para ofrecer consejos precisos y actualizados con el mercado.',
+    'about.focus.title': 'Enfoque en el Primer Empleo',
+    'about.focus.desc': 'Entendemos los desafíos únicos de quienes están comenzando y adaptamos nuestras estrategias para superar estas barreras.',
+    'about.learning.title': 'Aprendizaje Continuo',
+    'about.learning.desc': 'Sigue las tendencias del mercado y desarrolla las habilidades más buscadas por los empleadores.',
+    'about.support.title': 'Soporte Humanizado',
+    'about.support.desc': 'Tecnología avanzada con toque humano. Nuestra IA está entrenada para ser empática y comprender tus necesidades individuales.',
+    'about.stat1': 'Currículums optimizados',
+    'about.stat2': 'Tasa de aprobación en procesos',
+    'about.cta': 'Comienza Tu Viaje Profesional',
+    'contact.title': 'Ponte en',
+    'contact.titleHighlight': ' Contacto',
+    'contact.subtitle': '¿Tienes alguna pregunta o necesitas ayuda? ¡Nuestro equipo está listo para orientarte!',
+    'contact.info': 'Contáctanos',
+    'contact.email': 'Correo Electrónico',
+    'contact.phone': 'Teléfono',
+    'contact.address': 'Dirección',
+    'contact.form.title': 'Enviar un Mensaje',
+    'contact.form.name': 'Nombre',
+    'contact.form.namePlaceholder': 'Tu nombre',
+    'contact.form.email': 'Correo Electrónico',
+    'contact.form.emailPlaceholder': 'tu@email.com',
+    'contact.form.subject': 'Asunto',
+    'contact.form.subjectPlaceholder': '¿Cómo podemos ayudarte?',
+    'contact.form.message': 'Mensaje',
+    'contact.form.messagePlaceholder': 'Describe tu pregunta o sugerencia...',
+    'contact.form.submit': 'Enviar Mensaje',
     'dashboard.title': 'Panel de Control',
     'dashboard.welcome': 'Bienvenido de nuevo',
     'dashboard.welcomeBack': 'Bienvenido de nuevo',
@@ -380,7 +541,6 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.recommendations': 'Recomendaciones para Ti',
     'dashboard.profileStrength': 'Fortaleza del Perfil',
     'dashboard.aiInsights': 'Perspectivas de IA',
-    
     'settings.title': 'Configuración',
     'settings.profile': 'Perfil',
     'settings.notifications': 'Notificaciones',
@@ -431,12 +591,10 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.themeSettings': 'Configuración de Tema',
     'settings.currentTheme': 'Tema Actual',
     'settings.themeToggle': 'Cambiar Tema',
-    
     'profile.dashboard': 'Panel',
     'profile.settings': 'Configuración',
     'profile.logout': 'Cerrar Sesión',
     'profile.professional': 'Profesional',
-    
     'admin.title': 'Panel de Administración',
     'admin.description': 'Gestionar usuarios y permisos',
     'admin.allUsers': 'Todos los Usuarios',
@@ -457,293 +615,150 @@ const translations: Record<Language, Record<string, string>> = {
     'admin.errorFetch': 'Error al cargar usuarios',
     'admin.admin': 'Admin',
     'admin.client': 'Cliente',
+    'demo.title': 'NexusAI Demo',
+    'demo.hero': 'Explora el Poder de',
+    'demo.heroHighlight': ' la IA ',
+    'demo.heroEnd': 'en tu desarrollo profesional',
+    'demo.heroDesc': 'Ve demostraciones interactivas de cómo NexusAI puede transformar tu carrera',
+    'demo.watchDemo': 'Ver Demo',
+    'demo.howItWorks': 'Cómo Funciona',
+    'demo.stepByStep': 'Proceso paso a paso',
+    'demo.testimonials': 'Lo que dicen nuestros usuarios',
+    'demo.cta.title': '¿Listo para transformar tu carrera?',
+    'demo.cta.desc': 'Únete a miles de profesionales que ya usan NexusAI',
+    'demo.cta.start': 'Comenzar Gratis',
+    'demo.cta.learn': 'Saber Más',
+    'demo.resume.title': 'Optimización de Currículum',
+    'demo.resume.desc': 'Ve cómo la IA analiza y mejora tu currículum en tiempo real',
+    'demo.resume.step1': 'Sube tu currículum actual',
+    'demo.resume.step2': 'Análisis automático de fortalezas y debilidades',
+    'demo.resume.step3': 'Sugerencias de mejora basadas en IA',
+    'demo.resume.step4': 'Generación de currículum optimizado en PDF',
+    'demo.resume.stat1': 'Aumento promedio en tasa de respuesta',
+    'demo.resume.stat2': 'Tiempo promedio de optimización',
+    'demo.resume.stat3': 'Currículums optimizados',
+    'demo.interview.title': 'Preparación para Entrevistas',
+    'demo.interview.desc': 'Practica con simulaciones realistas de entrevistas',
+    'demo.interview.step1': 'Elige el tipo de puesto deseado',
+    'demo.interview.step2': 'Recibe preguntas personalizadas',
+    'demo.interview.step3': 'Graba tus respuestas en tiempo real',
+    'demo.interview.step4': 'Obtén retroalimentación detallada de la IA',
+    'demo.interview.stat1': 'Tasa de aprobación después del entrenamiento',
+    'demo.interview.stat2': 'Preguntas disponibles',
+    'demo.interview.stat3': 'Retroalimentación personalizada',
+    'demo.skills.title': 'Desarrollo de Habilidades',
+    'demo.skills.desc': 'Mejora tus competencias con rutas personalizadas',
+    'demo.skills.step1': 'Evaluación inicial de competencias',
+    'demo.skills.step2': 'Ruta de aprendizaje personalizada',
+    'demo.skills.step3': 'Ejercicios prácticos y desafíos',
+    'demo.skills.step4': 'Certificados de finalización',
+    'demo.skills.stat1': 'Habilidades disponibles',
+    'demo.skills.stat2': 'Tiempo promedio de finalización',
+    'demo.skills.stat3': 'Tasa de satisfacción',
   },
-  fr: {
-    'nav.features': 'Fonctionnalités',
-    'nav.about': 'À propos',
-    'nav.contact': 'Contact',
-    'auth.login': 'Connexion',
-    'auth.signup': "S'inscrire",
-    'auth.logout': 'Déconnexion',
-    'nav.dashboard': 'Tableau de bord',
-    
-    'hero.badge': 'Orientation Professionnelle par IA',
-    'hero.title': 'Votre voyage vers le',
-    'hero.titleHighlight': ' marché du travail ',
-    'hero.titleEnd': 'commence ici',
-    'hero.description': "NexusAI est votre assistant intelligent pour trouver des opportunités, améliorer votre CV et décrocher l'emploi de vos rêves.",
-    'hero.getStarted': 'Commencer',
-    'hero.demo': 'Voir la Démo',
-    'hero.stat1': 'Jeunes Guidés',
-    'hero.stat2': 'Taux de Réussite',
-    'hero.stat3': 'Support IA',
-    
-    'dashboard.title': 'Tableau de bord',
-    'dashboard.welcome': 'Bon retour',
-    'dashboard.resume': 'Optimiser le CV',
-    'dashboard.resumeDesc': 'Créez et optimisez votre CV professionnel',
-    'dashboard.interview': 'Préparation aux Entretiens',
-    'dashboard.interviewDesc': 'Pratiquez et préparez-vous pour vos entretiens',
-    'dashboard.skills': 'Développement des Compétences',
-    'dashboard.skillsDesc': 'Améliorez vos compétences professionnelles',
-    'dashboard.backHome': "Retour à l'Accueil",
-  },
-  de: {
-    'nav.features': 'Funktionen',
-    'nav.about': 'Über uns',
-    'nav.contact': 'Kontakt',
-    'auth.login': 'Anmelden',
-    'auth.signup': 'Registrieren',
-    'auth.logout': 'Abmelden',
-    'nav.dashboard': 'Dashboard',
-    
-    'hero.badge': 'KI-gestützte Berufsberatung',
-    'hero.title': 'Ihre Reise zum',
-    'hero.titleHighlight': ' Arbeitsmarkt ',
-    'hero.titleEnd': 'beginnt hier',
-    'hero.description': 'NexusAI ist Ihr intelligenter Assistent, um Chancen zu finden, Ihren Lebenslauf zu verbessern und Ihren Traumjob zu bekommen.',
-    'hero.getStarted': 'Jetzt Starten',
-    'hero.demo': 'Demo Ansehen',
-    'hero.stat1': 'Begleitete Jugendliche',
-    'hero.stat2': 'Erfolgsquote',
-    'hero.stat3': 'KI-Support',
-    
-    'dashboard.title': 'Dashboard',
-    'dashboard.welcome': 'Willkommen zurück',
-    'dashboard.resume': 'Lebenslauf Optimieren',
-    'dashboard.resumeDesc': 'Erstellen und optimieren Sie Ihren professionellen Lebenslauf',
-    'dashboard.interview': 'Vorstellungsgesprächsvorbereitung',
-    'dashboard.interviewDesc': 'Üben und bereiten Sie sich auf Ihre Vorstellungsgespräche vor',
-    'dashboard.skills': 'Kompetenzentwicklung',
-    'dashboard.skillsDesc': 'Verbessern Sie Ihre beruflichen Kompetenzen',
-    'dashboard.backHome': 'Zurück zur Startseite',
-  },
-  it: {
-    'nav.features': 'Caratteristiche',
-    'nav.about': 'Chi siamo',
-    'nav.contact': 'Contatto',
-    'auth.login': 'Accedi',
-    'auth.signup': 'Registrati',
-    'auth.logout': 'Esci',
-    'nav.dashboard': 'Pannello',
-    
-    'hero.badge': 'Orientamento Professionale con IA',
-    'hero.title': 'Il tuo viaggio verso il',
-    'hero.titleHighlight': ' mercato del lavoro ',
-    'hero.titleEnd': 'inizia qui',
-    'hero.description': "NexusAI è il tuo assistente intelligente per trovare opportunità, migliorare il tuo curriculum e ottenere il lavoro dei tuoi sogni.",
-    'hero.getStarted': 'Inizia Ora',
-    'hero.demo': 'Vedi Demo',
-    'hero.stat1': 'Giovani Guidati',
-    'hero.stat2': 'Tasso di Successo',
-    'hero.stat3': 'Supporto IA',
-    
-    'dashboard.title': 'Pannello di Controllo',
-    'dashboard.welcome': 'Bentornato',
-    'dashboard.resume': 'Ottimizza Curriculum',
-    'dashboard.resumeDesc': 'Crea e ottimizza il tuo curriculum professionale',
-    'dashboard.interview': 'Preparazione ai Colloqui',
-    'dashboard.interviewDesc': 'Pratica e preparati per i tuoi colloqui',
-    'dashboard.skills': 'Sviluppo delle Competenze',
-    'dashboard.skillsDesc': 'Migliora le tue competenze professionali',
-    'dashboard.backHome': "Torna all'Inizio",
-  },
-  zh: {
-    'nav.features': '功能',
-    'nav.about': '关于',
-    'nav.contact': '联系',
-    'auth.login': '登录',
-    'auth.signup': '注册',
-    'auth.logout': '退出',
-    'nav.dashboard': '仪表板',
-    
-    'hero.badge': 'AI驱动的职业指导',
-    'hero.title': '您的',
-    'hero.titleHighlight': ' 职场之旅 ',
-    'hero.titleEnd': '从这里开始',
-    'hero.description': 'NexusAI是您的智能助手，帮助您找到机会、改善简历并获得理想的工作。',
-    'hero.getStarted': '立即开始',
-    'hero.demo': '查看演示',
-    'hero.stat1': '指导的年轻人',
-    'hero.stat2': '成功率',
-    'hero.stat3': 'AI支持',
-    
-    'dashboard.title': '仪表板',
-    'dashboard.welcome': '欢迎回来',
-    'dashboard.resume': '优化简历',
-    'dashboard.resumeDesc': '创建并优化您的专业简历',
-    'dashboard.interview': '面试准备',
-    'dashboard.interviewDesc': '练习并为您的面试做好准备',
-    'dashboard.skills': '技能发展',
-    'dashboard.skillsDesc': '提升您的专业能力',
-    'dashboard.backHome': '返回首页',
-  },
-  ja: {
-    'nav.features': '機能',
-    'nav.about': '概要',
-    'nav.contact': 'お問い合わせ',
-    'auth.login': 'ログイン',
-    'auth.signup': '登録',
-    'auth.logout': 'ログアウト',
-    'nav.dashboard': 'ダッシュボード',
-    
-    'hero.badge': 'AIによるキャリアガイダンス',
-    'hero.title': 'あなたの',
-    'hero.titleHighlight': ' 就職活動 ',
-    'hero.titleEnd': 'はここから始まります',
-    'hero.description': 'NexusAIは、機会を見つけ、履歴書を改善し、夢の仕事を獲得するためのインテリジェントなアシスタントです。',
-    'hero.getStarted': '今すぐ始める',
-    'hero.demo': 'デモを見る',
-    'hero.stat1': '指導された若者',
-    'hero.stat2': '成功率',
-    'hero.stat3': 'AIサポート',
-    
-    'dashboard.title': 'ダッシュボード',
-    'dashboard.welcome': 'おかえりなさい',
-    'dashboard.resume': '履歴書の最適化',
-    'dashboard.resumeDesc': 'プロフェッショナルな履歴書を作成し最適化',
-    'dashboard.interview': '面接準備',
-    'dashboard.interviewDesc': '面接の練習と準備',
-    'dashboard.skills': 'スキル開発',
-    'dashboard.skillsDesc': '専門的な能力を向上させる',
-    'dashboard.backHome': 'ホームに戻る',
-  },
-  ko: {
-    'nav.features': '기능',
-    'nav.about': '소개',
-    'nav.contact': '연락처',
-    'auth.login': '로그인',
-    'auth.signup': '가입',
-    'auth.logout': '로그아웃',
-    'nav.dashboard': '대시보드',
-    
-    'hero.badge': 'AI 기반 커리어 가이던스',
-    'hero.title': '당신의',
-    'hero.titleHighlight': ' 취업 여정 ',
-    'hero.titleEnd': '이 여기서 시작됩니다',
-    'hero.description': 'NexusAI는 기회를 찾고, 이력서를 개선하며, 꿈의 직장을 얻기 위한 지능형 도우미입니다.',
-    'hero.getStarted': '시작하기',
-    'hero.demo': '데모 보기',
-    'hero.stat1': '지도된 청년',
-    'hero.stat2': '성공률',
-    'hero.stat3': 'AI 지원',
-    
-    'dashboard.title': '대시보드',
-    'dashboard.welcome': '다시 오신 것을 환영합니다',
-    'dashboard.resume': '이력서 최적화',
-    'dashboard.resumeDesc': '전문 이력서 작성 및 최적화',
-    'dashboard.interview': '면접 준비',
-    'dashboard.interviewDesc': '면접 연습 및 준비',
-    'dashboard.skills': '스킬 개발',
-    'dashboard.skillsDesc': '전문 역량 향상',
-    'dashboard.backHome': '홈으로 돌아가기',
-  },
-  ru: {
-    'nav.features': 'Функции',
-    'nav.about': 'О нас',
-    'nav.contact': 'Контакты',
-    'auth.login': 'Войти',
-    'auth.signup': 'Регистрация',
-    'auth.logout': 'Выйти',
-    'nav.dashboard': 'Панель',
-    
-    'hero.badge': 'Карьерное руководство с ИИ',
-    'hero.title': 'Ваше путешествие к',
-    'hero.titleHighlight': ' рынку труда ',
-    'hero.titleEnd': 'начинается здесь',
-    'hero.description': 'NexusAI - ваш интеллектуальный помощник для поиска возможностей, улучшения резюме и получения работы мечты.',
-    'hero.getStarted': 'Начать сейчас',
-    'hero.demo': 'Смотреть демо',
-    'hero.stat1': 'Наставленная молодежь',
-    'hero.stat2': 'Процент успеха',
-    'hero.stat3': 'Поддержка ИИ',
-    
-    'dashboard.title': 'Панель управления',
-    'dashboard.welcome': 'Добро пожаловать',
-    'dashboard.resume': 'Оптимизация резюме',
-    'dashboard.resumeDesc': 'Создайте и оптимизируйте свое профессиональное резюме',
-    'dashboard.interview': 'Подготовка к собеседованию',
-    'dashboard.interviewDesc': 'Практикуйтесь и готовьтесь к собеседованиям',
-    'dashboard.skills': 'Развитие навыков',
-    'dashboard.skillsDesc': 'Улучшите свои профессиональные компетенции',
-    'dashboard.backHome': 'Вернуться на главную',
-  },
-  ar: {
-    'nav.features': 'الميزات',
-    'nav.about': 'عن',
-    'nav.contact': 'اتصل',
-    'auth.login': 'تسجيل الدخول',
-    'auth.signup': 'التسجيل',
-    'auth.logout': 'تسجيل الخروج',
-    'nav.dashboard': 'لوحة التحكم',
-    
-    'hero.badge': 'التوجيه المهني بالذكاء الاصطناعي',
-    'hero.title': 'رحلتك إلى',
-    'hero.titleHighlight': ' سوق العمل ',
-    'hero.titleEnd': 'تبدأ هنا',
-    'hero.description': 'NexusAI هو مساعدك الذكي للعثور على الفرص وتحسين سيرتك الذاتية والحصول على وظيفة أحلامك.',
-    'hero.getStarted': 'ابدأ الآن',
-    'hero.demo': 'عرض التجريبي',
-    'hero.stat1': 'الشباب الموجهين',
-    'hero.stat2': 'معدل النجاح',
-    'hero.stat3': 'دعم الذكاء الاصطناعي',
-    
-    'dashboard.title': 'لوحة التحكم',
-    'dashboard.welcome': 'مرحبا بعودتك',
-    'dashboard.resume': 'تحسين السيرة الذاتية',
-    'dashboard.resumeDesc': 'إنشاء وتحسين سيرتك الذاتية المهنية',
-    'dashboard.interview': 'الإعداد للمقابلات',
-    'dashboard.interviewDesc': 'ممارسة والاستعداد لمقابلاتك',
-    'dashboard.skills': 'تطوير المهارات',
-    'dashboard.skillsDesc': 'تعزيز كفاءاتك المهنية',
-    'dashboard.backHome': 'العودة إلى الصفحة الرئيسية',
-  },
-  hi: {
-    'nav.features': 'विशेषताएं',
-    'nav.about': 'के बारे में',
-    'nav.contact': 'संपर्क',
-    'auth.login': 'लॉगिन',
-    'auth.signup': 'साइन अप',
-    'auth.logout': 'लॉगआउट',
-    'nav.dashboard': 'डैशबोर्ड',
-    
-    'hero.badge': 'AI-संचालित करियर मार्गदर्शन',
-    'hero.title': 'आपकी यात्रा',
-    'hero.titleHighlight': ' नौकरी बाजार ',
-    'hero.titleEnd': 'यहाँ से शुरू होती है',
-    'hero.description': 'NexusAI आपका बुद्धिमान सहायक है अवसर खोजने, अपना रिज्यूमे सुधारने और अपनी सपनों की नौकरी पाने के लिए।',
-    'hero.getStarted': 'अभी शुरू करें',
-    'hero.demo': 'डेमो देखें',
-    'hero.stat1': 'मार्गदर्शित युवा',
-    'hero.stat2': 'सफलता दर',
-    'hero.stat3': 'AI सहायता',
-    
-    'dashboard.title': 'डैशबोर्ड',
-    'dashboard.welcome': 'वापसी पर स्वागत है',
-    'dashboard.resume': 'रिज्यूमे अनुकूलन',
-    'dashboard.resumeDesc': 'अपना पेशेवर रिज्यूमे बनाएं और अनुकूलित करें',
-    'dashboard.interview': 'साक्षात्कार की तैयारी',
-    'dashboard.interviewDesc': 'अपने साक्षात्कार के लिए अभ्यास और तैयारी करें',
-    'dashboard.skills': 'कौशल विकास',
-    'dashboard.skillsDesc': 'अपनी पेशेवर क्षमताओं को बढ़ाएं',
-    'dashboard.backHome': 'होम पर वापस जाएं',
-  },
+  fr: {},
+  de: {},
+  it: {},
+  zh: {},
+  ja: {},
+  ko: {},
+  ru: {},
+  ar: {},
+  hi: {},
 };
+
+// Add minimal translations for other languages to avoid errors
+const minimalTranslations = {
+  'nav.features': 'Features',
+  'nav.about': 'About',
+  'nav.contact': 'Contact',
+  'auth.login': 'Login',
+  'auth.signup': 'Sign Up',
+  'auth.logout': 'Logout',
+  'nav.dashboard': 'Dashboard',
+  'hero.badge': 'AI Career Guidance',
+  'hero.title': 'Your journey to',
+  'hero.titleHighlight': ' job market ',
+  'hero.titleEnd': 'starts here',
+  'hero.description': 'NexusAI is your intelligent career assistant.',
+  'hero.getStarted': 'Get Started',
+  'hero.demo': 'View Demo',
+};
+
+// Fill in remaining languages with minimal translations
+['fr', 'de', 'it', 'zh', 'ja', 'ko', 'ru', 'ar', 'hi'].forEach(lang => {
+  if (Object.keys(translations[lang as Language]).length === 0) {
+    translations[lang as Language] = minimalTranslations;
+  }
+});
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('language');
-    return (saved as Language) || 'pt';
-  });
+  const [language, setLanguageState] = useState<Language>('pt');
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Load language preference from database or localStorage
   useEffect(() => {
-    localStorage.setItem('language', language);
-    document.documentElement.lang = language;
-    // Set direction for RTL languages
-    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-  }, [language]);
+    const loadLanguage = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        setUserId(session.user.id);
+        // Load from database for authenticated users
+        const { data } = await supabase
+          .from('profiles')
+          .select('preferred_language')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (data?.preferred_language) {
+          setLanguageState(data.preferred_language as Language);
+          document.documentElement.dir = data.preferred_language === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.lang = data.preferred_language;
+        }
+      } else {
+        // Load from localStorage for non-authenticated users
+        const savedLanguage = localStorage.getItem('language') as Language;
+        if (savedLanguage) {
+          setLanguageState(savedLanguage);
+          document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+          document.documentElement.lang = savedLanguage;
+        }
+      }
+    };
+    
+    loadLanguage();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUserId(session.user.id);
+        loadLanguage();
+      } else {
+        setUserId(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const setLanguage = async (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+    
+    // Update document direction for RTL languages
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+    
+    // Save to database if user is authenticated
+    if (userId) {
+      await supabase
+        .from('profiles')
+        .update({ preferred_language: lang })
+        .eq('user_id', userId);
+    }
+  };
 
   const t = (key: string): string => {
     return translations[language][key] || key;
