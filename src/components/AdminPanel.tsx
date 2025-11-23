@@ -3,10 +3,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Trash2, Shield } from 'lucide-react';
+import { Trash2, Shield, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +32,8 @@ export const AdminPanel = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  const [emailConfirmationRequired, setEmailConfirmationRequired] = useState(true);
+  const [savingEmailSetting, setSavingEmailSetting] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -70,7 +74,38 @@ export const AdminPanel = () => {
 
   useEffect(() => {
     fetchUsers();
+    loadEmailConfirmationSetting();
   }, []);
+
+  const loadEmailConfirmationSetting = () => {
+    const saved = localStorage.getItem('emailConfirmationRequired');
+    if (saved !== null) {
+      setEmailConfirmationRequired(saved === 'true');
+    }
+  };
+
+  const handleEmailConfirmationToggle = async (checked: boolean) => {
+    setSavingEmailSetting(true);
+    try {
+      localStorage.setItem('emailConfirmationRequired', checked.toString());
+      setEmailConfirmationRequired(checked);
+      
+      toast({
+        title: t('admin.settingsSaved'),
+        description: checked 
+          ? t('admin.emailConfirmationEnabled')
+          : t('admin.emailConfirmationDisabled'),
+      });
+    } catch (error) {
+      toast({
+        title: t('admin.error'),
+        description: t('admin.errorSavingSettings'),
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingEmailSetting(false);
+    }
+  };
 
   const handleDeleteUser = async (userId: string) => {
     // Validate UUID format
@@ -147,7 +182,37 @@ export const AdminPanel = () => {
   }
 
   return (
-    <>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Mail className="h-5 w-5 text-primary" />
+            <CardTitle>{t('admin.authSettings')}</CardTitle>
+          </div>
+          <CardDescription>
+            {t('admin.authSettingsDesc')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="email-confirmation" className="text-base">
+                {t('admin.requireEmailConfirmation')}
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                {t('admin.emailConfirmationDesc')}
+              </p>
+            </div>
+            <Switch
+              id="email-confirmation"
+              checked={emailConfirmationRequired}
+              onCheckedChange={handleEmailConfirmationToggle}
+              disabled={savingEmailSetting}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
@@ -225,6 +290,6 @@ export const AdminPanel = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 };
